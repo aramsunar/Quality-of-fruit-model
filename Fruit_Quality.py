@@ -194,40 +194,64 @@ class FruitQualityClassifier:
         print(f" Model configured for {self.num_classes} classes: {self.class_names}")
         return self.model
     
-    def train_model(self, X_train, y_train, X_val, y_val, epochs=30):
+    def train_model(self, X_train, y_train, X_val, y_val, epochs=30, use_augmentation=False):
         """Train the model with proper validation"""
-        print(" Training model...")
+        print(f" Training model (Augmentation: {'ON' if use_augmentation else 'OFF'})...")
         
-        # Data augmentation
-        datagen = ImageDataGenerator(
-            rotation_range=20,
-            width_shift_range=0.2,
-            height_shift_range=0.2,
-            horizontal_flip=True,
-            zoom_range=0.2,
-            shear_range=0.1,
-            fill_mode='nearest'
-        )
+        batch_size = 32
         
-        self.history = self.model.fit(
-            datagen.flow(X_train, y_train, batch_size=32),
-            steps_per_epoch=len(X_train) // 32,
-            epochs=epochs,
-            validation_data=(X_val, y_val),
-            callbacks=[
-                tf.keras.callbacks.EarlyStopping(
-                    monitor='val_accuracy',
-                    patience=10,
-                    restore_best_weights=True
-                ),
-                tf.keras.callbacks.ReduceLROnPlateau(
-                    monitor='val_loss',
-                    factor=0.5,
-                    patience=5
-                )
-            ],
-            verbose=1
-        )
+        if use_augmentation:
+            # Data augmentation
+            datagen = ImageDataGenerator(
+                rotation_range=20,
+                width_shift_range=0.2,
+                height_shift_range=0.2,
+                horizontal_flip=True,
+                zoom_range=0.2,
+                shear_range=0.1,
+                fill_mode='nearest'
+            )
+            
+            self.history = self.model.fit(
+                datagen.flow(X_train, y_train, batch_size=batch_size),
+                steps_per_epoch=len(X_train) // batch_size,
+                epochs=epochs,
+                validation_data=(X_val, y_val),
+                callbacks=[
+                    tf.keras.callbacks.EarlyStopping(
+                        monitor='val_accuracy',
+                        patience=10,
+                        restore_best_weights=True
+                    ),
+                    tf.keras.callbacks.ReduceLROnPlateau(
+                        monitor='val_loss',
+                        factor=0.5,
+                        patience=5
+                    )
+                ],
+                verbose=1
+            )
+        else:
+            # No augmentation - train directly on data
+            self.history = self.model.fit(
+                X_train, y_train,
+                batch_size=batch_size,
+                epochs=epochs,
+                validation_data=(X_val, y_val),
+                callbacks=[
+                    tf.keras.callbacks.EarlyStopping(
+                        monitor='val_accuracy',
+                        patience=10,
+                        restore_best_weights=True
+                    ),
+                    tf.keras.callbacks.ReduceLROnPlateau(
+                        monitor='val_loss',
+                        factor=0.5,
+                        patience=5
+                    )
+                ],
+                verbose=1
+            )
         
         print(" Training completed!")
         return self.history

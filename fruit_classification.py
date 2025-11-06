@@ -220,28 +220,42 @@ class FruitClassifier:
             fill_mode='nearest'
         )
     
-    def train_model(self, X_train, y_train, X_val, y_val):
-        """Train the model with data augmentation"""
-        print(" Training model with data augmentation...")
+    def train_model(self, X_train, y_train, X_val, y_val, use_augmentation=True):
+        """Train the model with optional data augmentation"""
+        print(f" Training model (Augmentation: {'ON' if use_augmentation else 'OFF'})...")
         
-        datagen = self.create_data_augmentation()
-        
-        # Calculate steps per epoch
         batch_size = 32
-        steps_per_epoch = len(X_train) // batch_size
+        epochs = 30
         
-        self.history = self.model.fit(
-            datagen.flow(X_train, y_train, batch_size=batch_size),
-            steps_per_epoch=steps_per_epoch,
-            validation_data=(X_val, y_val),
-            epochs=30,  # Increased epochs for better learning
-            batch_size=batch_size,
-            verbose=1,
-            callbacks=[
-                tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True),
-                tf.keras.callbacks.ReduceLROnPlateau(factor=0.5, patience=3)
-            ]
-        )
+        if use_augmentation:
+            # Train with data augmentation
+            datagen = self.create_data_augmentation()
+            steps_per_epoch = len(X_train) // batch_size
+            
+            self.history = self.model.fit(
+                datagen.flow(X_train, y_train, batch_size=batch_size),
+                steps_per_epoch=steps_per_epoch,
+                validation_data=(X_val, y_val),
+                epochs=epochs,
+                verbose=1,
+                callbacks=[
+                    tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True),
+                    tf.keras.callbacks.ReduceLROnPlateau(factor=0.5, patience=3)
+                ]
+            )
+        else:
+            # Train without augmentation
+            self.history = self.model.fit(
+                X_train, y_train,
+                batch_size=batch_size,
+                validation_data=(X_val, y_val),
+                epochs=epochs,
+                verbose=1,
+                callbacks=[
+                    tf.keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True),
+                    tf.keras.callbacks.ReduceLROnPlateau(factor=0.5, patience=3)
+                ]
+            )
         
         print(" Training completed!")
         return self.history
