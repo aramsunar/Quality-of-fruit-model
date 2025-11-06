@@ -179,10 +179,10 @@ class FruitQualityClassifier:
             Dense(128, activation='relu', 
                   kernel_regularizer=tf.keras.regularizers.l2(0.001)),
             BatchNormalization(),
-            Dropout(0.6),
-            Dense(self.num_classes, activation='softmax')
+            Dropout(0.6),            Dense(self.num_classes, activation='softmax')
         ])
-          # Lower learning rate for better generalization
+        
+        # Lower learning rate for better generalization
         self.model.compile(
             optimizer=Adam(learning_rate=0.0001),
             loss='categorical_crossentropy',
@@ -205,35 +205,37 @@ class FruitQualityClassifier:
         batch_size = 32
         
         if use_augmentation:
-            # Enhanced data augmentation to reduce overfitting
+            # Moderate data augmentation to reduce overfitting without hurting performance
             datagen = ImageDataGenerator(
-                rotation_range=30,
-                width_shift_range=0.25,
-                height_shift_range=0.25,
+                rotation_range=20,
+                width_shift_range=0.2,
+                height_shift_range=0.2,
                 horizontal_flip=True,
-                vertical_flip=True,
-                zoom_range=0.25,
-                shear_range=0.15,
-                brightness_range=[0.8, 1.2],
+                zoom_range=0.2,
+                shear_range=0.1,
+                brightness_range=[0.9, 1.1],
                 fill_mode='nearest'
             )
             
+            # Fit the generator to the training data
+            datagen.fit(X_train)
+            
             self.history = self.model.fit(
-                datagen.flow(X_train, y_train, batch_size=batch_size),
+                datagen.flow(X_train, y_train, batch_size=batch_size, shuffle=True),
                 steps_per_epoch=len(X_train) // batch_size,
                 epochs=epochs,
                 validation_data=(X_val, y_val),
                 callbacks=[
                     tf.keras.callbacks.EarlyStopping(
-                        monitor='val_loss',  # Changed from val_accuracy
-                        patience=15,  # Increased patience
+                        monitor='val_loss',
+                        patience=12,
                         restore_best_weights=True,
                         verbose=1
                     ),
                     tf.keras.callbacks.ReduceLROnPlateau(
                         monitor='val_loss',
                         factor=0.5,
-                        patience=7,
+                        patience=6,
                         min_lr=1e-7,
                         verbose=1
                     )
@@ -466,7 +468,7 @@ class FruitQualityClassifier:
         # Build and train model
         self.build_improved_model()
         self.model.summary()  # Show model architecture
-        self.train_model(X_train, y_train, X_val, y_val, use_augmentation=True)
+        self.train_model(X_train, y_train, X_val, y_val, use_augmentation=False)
         
         # Evaluate
         accuracy, y_true, y_pred, y_pred_proba = self.evaluate_model(X_test, y_test)
