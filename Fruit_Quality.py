@@ -135,8 +135,7 @@ class FruitQualityClassifier:
             return None, None
         
         dataset_path, class_images = result
-        
-        # Load images based on structure
+          # Load images based on structure
         images, labels = self.load_images_from_structure(class_images)
         
         if len(images) == 0:
@@ -146,69 +145,76 @@ class FruitQualityClassifier:
         return images, labels
     
     def build_improved_model(self):
-        """Build a better CNN model for fruit quality classification"""
-        print(" Building improved CNN model...")
+        """Build a better CNN model for fruit quality classification with regularization"""
+        print(" Building improved CNN model with anti-overfitting measures...")
         
+        # Reduced model capacity to prevent overfitting
         self.model = Sequential([
             # Input layer
             Input(shape=(*self.image_size, 3)),
             
-            # First block
-            Conv2D(32, (3, 3), activation='relu', padding='same'),
+            # First block - Reduced filters
+            Conv2D(16, (3, 3), activation='relu', padding='same', 
+                   kernel_regularizer=tf.keras.regularizers.l2(0.001)),
             BatchNormalization(),
-            Conv2D(32, (3, 3), activation='relu', padding='same'),
             MaxPooling2D(2, 2),
-            Dropout(0.25),
+            Dropout(0.3),
             
-            # Second block
-            Conv2D(64, (3, 3), activation='relu', padding='same'),
+            # Second block - Reduced filters
+            Conv2D(32, (3, 3), activation='relu', padding='same',
+                   kernel_regularizer=tf.keras.regularizers.l2(0.001)),
             BatchNormalization(),
-            Conv2D(64, (3, 3), activation='relu', padding='same'),
             MaxPooling2D(2, 2),
-            Dropout(0.25),
+            Dropout(0.4),
             
-            # Third block
-            Conv2D(128, (3, 3), activation='relu', padding='same'),
+            # Third block - Reduced filters
+            Conv2D(64, (3, 3), activation='relu', padding='same',
+                   kernel_regularizer=tf.keras.regularizers.l2(0.001)),
             BatchNormalization(),
-            Conv2D(128, (3, 3), activation='relu', padding='same'),
             MaxPooling2D(2, 2),
-            Dropout(0.25),
+            Dropout(0.5),
             
-            # Classifier
+            # Classifier - Simplified
             Flatten(),
-            Dense(256, activation='relu'),
+            Dense(128, activation='relu', 
+                  kernel_regularizer=tf.keras.regularizers.l2(0.001)),
             BatchNormalization(),
-            Dropout(0.5),
-            Dense(128, activation='relu'),
-            Dropout(0.5),
+            Dropout(0.6),
             Dense(self.num_classes, activation='softmax')
         ])
-        
+          # Lower learning rate for better generalization
         self.model.compile(
-            optimizer=Adam(learning_rate=0.001),
+            optimizer=Adam(learning_rate=0.0001),
             loss='categorical_crossentropy',
             metrics=['accuracy']
         )
         
-        print(" Model built successfully!")
+        print(" Model built successfully with regularization!")
         print(f" Model configured for {self.num_classes} classes: {self.class_names}")
+        print(" Anti-overfitting measures:")
+        print("   • Reduced model capacity (fewer filters)")
+        print("   • L2 regularization on all layers")
+        print("   • Increased dropout rates (0.3-0.6)")
+        print("   • Lower learning rate (0.0001)")
         return self.model
     
-    def train_model(self, X_train, y_train, X_val, y_val, epochs=30, use_augmentation=False):
-        """Train the model with proper validation"""
+    def train_model(self, X_train, y_train, X_val, y_val, epochs=50, use_augmentation=True):
+        """Train the model with proper validation and data augmentation"""
         print(f" Training model (Augmentation: {'ON' if use_augmentation else 'OFF'})...")
         
         batch_size = 32
         
         if use_augmentation:
-            # Data augmentation
+            # Enhanced data augmentation to reduce overfitting
             datagen = ImageDataGenerator(
-                rotation_range=20,
-                width_shift_range=0.2,
-                height_shift_range=0.2,
+                rotation_range=30,
+                width_shift_range=0.25,
+                height_shift_range=0.25,
                 horizontal_flip=True,
-                zoom_range=0.2,
-                shear_range=0.1,
+                vertical_flip=True,
+                zoom_range=0.25,
+                shear_range=0.15,
+                brightness_range=[0.8, 1.2],
                 fill_mode='nearest'
             )
             
@@ -219,14 +225,17 @@ class FruitQualityClassifier:
                 validation_data=(X_val, y_val),
                 callbacks=[
                     tf.keras.callbacks.EarlyStopping(
-                        monitor='val_accuracy',
-                        patience=10,
-                        restore_best_weights=True
+                        monitor='val_loss',  # Changed from val_accuracy
+                        patience=15,  # Increased patience
+                        restore_best_weights=True,
+                        verbose=1
                     ),
                     tf.keras.callbacks.ReduceLROnPlateau(
                         monitor='val_loss',
                         factor=0.5,
-                        patience=5
+                        patience=7,
+                        min_lr=1e-7,
+                        verbose=1
                     )
                 ],
                 verbose=1
@@ -240,17 +249,19 @@ class FruitQualityClassifier:
                 validation_data=(X_val, y_val),
                 callbacks=[
                     tf.keras.callbacks.EarlyStopping(
-                        monitor='val_accuracy',
-                        patience=10,
-                        restore_best_weights=True
+                        monitor='val_loss',
+                        patience=15,
+                        restore_best_weights=True,
+                        verbose=1
                     ),
                     tf.keras.callbacks.ReduceLROnPlateau(
                         monitor='val_loss',
                         factor=0.5,
-                        patience=5
+                        patience=7,
+                        min_lr=1e-7,
+                        verbose=1
                     )
-                ],
-                verbose=1
+                ],                verbose=1
             )
         
         print(" Training completed!")
@@ -282,24 +293,40 @@ class FruitQualityClassifier:
         # Create a comprehensive figure
         fig = plt.figure(figsize=(20, 15))
         
-        # Plot 1: Training history
+        # Plot 1: Training history - Loss
         plt.subplot(2, 3, 1)
-        plt.plot(self.history.history['loss'], label='Training Loss', linewidth=2)
-        plt.plot(self.history.history['val_loss'], label='Validation Loss', linewidth=2)
+        plt.plot(self.history.history['loss'], label='Training Loss', linewidth=2, marker='o', markersize=4)
+        plt.plot(self.history.history['val_loss'], label='Validation Loss', linewidth=2, marker='s', markersize=4)
         plt.title('Model Loss Over Epochs', fontsize=14, fontweight='bold')
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         plt.legend()
         plt.grid(True, alpha=0.3)
         
+        # Add overfitting indicator
+        final_train_loss = self.history.history['loss'][-1]
+        final_val_loss = self.history.history['val_loss'][-1]
+        loss_gap = abs(final_val_loss - final_train_loss)
+        plt.text(0.5, 0.95, f'Final Gap: {loss_gap:.4f}', 
+                transform=plt.gca().transAxes, fontsize=10, verticalalignment='top',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+        
         plt.subplot(2, 3, 2)
-        plt.plot(self.history.history['accuracy'], label='Training Accuracy', linewidth=2)
-        plt.plot(self.history.history['val_accuracy'], label='Validation Accuracy', linewidth=2)
+        plt.plot(self.history.history['accuracy'], label='Training Accuracy', linewidth=2, marker='o', markersize=4)
+        plt.plot(self.history.history['val_accuracy'], label='Validation Accuracy', linewidth=2, marker='s', markersize=4)
         plt.title('Model Accuracy Over Epochs', fontsize=14, fontweight='bold')
         plt.xlabel('Epoch')
         plt.ylabel('Accuracy')
         plt.legend()
         plt.grid(True, alpha=0.3)
+        
+        # Add overfitting indicator
+        final_train_acc = self.history.history['accuracy'][-1]
+        final_val_acc = self.history.history['val_accuracy'][-1]
+        acc_gap = abs(final_train_acc - final_val_acc)
+        plt.text(0.5, 0.05, f'Final Gap: {acc_gap:.4f}', 
+                transform=plt.gca().transAxes, fontsize=10,
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
         
         # Plot 2: Confusion Matrix
         plt.subplot(2, 3, 3)
@@ -426,8 +453,7 @@ class FruitQualityClassifier:
             X, y, test_size=0.2, random_state=42, stratify=labels
         )
         X_train, X_val, y_train, y_val = train_test_split(
-            X_train, y_train, test_size=0.2, random_state=42, 
-            stratify=np.argmax(y_train, axis=1)
+            X_train, y_train, test_size=0.2, random_state=42,        stratify=np.argmax(y_train, axis=1)
         )
         
         print(f"\n Data Summary:")
@@ -439,7 +465,8 @@ class FruitQualityClassifier:
         
         # Build and train model
         self.build_improved_model()
-        self.train_model(X_train, y_train, X_val, y_val)
+        self.model.summary()  # Show model architecture
+        self.train_model(X_train, y_train, X_val, y_val, use_augmentation=True)
         
         # Evaluate
         accuracy, y_true, y_pred, y_pred_proba = self.evaluate_model(X_test, y_test)
@@ -458,14 +485,36 @@ def main():
         
         classifier = FruitQualityClassifier()
         accuracy = classifier.run_complete_pipeline()
-        
-        # Final summary
+          # Final summary
         print("\n" + "="*70)
         print("FRUIT QUALITY CLASSIFICATION COMPLETED!")
         print("="*70)
         print(f"Final Test Accuracy: {accuracy:.4f}")
         print(f"Number of Classes: {classifier.num_classes}")
         print(f"Classes: {', '.join(classifier.class_names)}")
+        
+        # Show training vs validation metrics
+        final_train_acc = classifier.history.history['accuracy'][-1]
+        final_val_acc = classifier.history.history['val_accuracy'][-1]
+        final_train_loss = classifier.history.history['loss'][-1]
+        final_val_loss = classifier.history.history['val_loss'][-1]
+        
+        print(f"\n Training Metrics:")
+        print(f"   Final Training Accuracy: {final_train_acc:.4f}")
+        print(f"   Final Validation Accuracy: {final_val_acc:.4f}")
+        print(f"   Accuracy Gap: {abs(final_train_acc - final_val_acc):.4f}")
+        print(f"   Final Training Loss: {final_train_loss:.4f}")
+        print(f"   Final Validation Loss: {final_val_loss:.4f}")
+        print(f"   Loss Gap: {abs(final_train_loss - final_val_loss):.4f}")
+        
+        print("\n Anti-Overfitting Measures Applied:")
+        print("   • Reduced model complexity (fewer filters) ✓")
+        print("   • L2 regularization on all Conv2D and Dense layers ✓")
+        print("   • Increased dropout rates (0.3-0.6) ✓")
+        print("   • Enhanced data augmentation ✓")
+        print("   • Lower learning rate (0.0001) ✓")
+        print("   • Early stopping monitoring val_loss ✓")
+        
         print("\n All tasks completed:")
         print("   • Dataset exploration and loading ✓")
         print("   • Data preprocessing and augmentation ✓")
