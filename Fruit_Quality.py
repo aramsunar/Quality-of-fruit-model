@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -26,7 +26,7 @@ class FruitQualityClassifier:
         self.class_names = []
         self.num_classes = 0
         self.image_size = (128, 128)
-        self.dataset_path = "fruq_dataset"
+        self.dataset_path = "FruQ-DB"
     
     def explore_dataset_structure(self):
         """Explore the actual structure of FruQ-DB dataset"""
@@ -34,24 +34,14 @@ class FruitQualityClassifier:
         
         base_path = Path(self.dataset_path)
         
-        # Look for the main dataset folder
-        possible_paths = [
-            base_path / "FruQ-DB",
-            base_path / "FruQ-DB-main",
-            base_path / "dataset",
-            base_path
-        ]
-        
-        dataset_path = None
-        for path in possible_paths:
-            if path.exists():
-                dataset_path = path
-                print(f" Found dataset at: {path}")
-                break
-        
-        if dataset_path is None:
-            print(" Dataset not found. Please ensure FruQ-DB is extracted in 'fruq_dataset' folder")
+        # The dataset is directly in the FruQ-DB folder
+        if not base_path.exists():
+            print(f" Dataset not found at: {base_path}")
+            print(" Please ensure FruQ-DB folder exists in the project root")
             return None
+        
+        dataset_path = base_path
+        print(f" Found dataset at: {dataset_path}")
         
         # Explore the structure
         all_items = list(dataset_path.rglob("*"))
@@ -150,72 +140,21 @@ class FruitQualityClassifier:
         images, labels = self.load_images_from_structure(class_images)
         
         if len(images) == 0:
-            print(" No images loaded! Using synthetic data...")
-            return self.create_synthetic_dataset()
+            print(" No images loaded! Please ensure the dataset is properly extracted.")
+            raise ValueError("Dataset could not be loaded. Please check the dataset path and structure.")
         
         return images, labels
-    
-    def create_synthetic_dataset(self):
-        """Create synthetic dataset as fallback"""
-        print(" Creating synthetic fruit quality dataset...")
-        
-        n_samples = 1000
-        images = []
-        labels = []
-        
-        # Colors for different quality levels
-        fresh_color = [0.2, 0.8, 0.2]    # Green
-        mid_color = [0.8, 0.8, 0.2]      # Yellow
-        rotten_color = [0.6, 0.2, 0.2]   # Brown-red
-        
-        colors = [fresh_color, mid_color, rotten_color]
-        self.class_names = ['Fresh', 'Mid', 'Rotten']
-        self.num_classes = 3
-        
-        for i in range(n_samples):
-            class_id = i % self.num_classes
-            img = self.create_quality_fruit_image(class_id, colors[class_id])
-            images.append(img)
-            labels.append(class_id)
-        
-        print(f" Created {len(images)} synthetic images")
-        return np.array(images), np.array(labels)
-    
-    def create_quality_fruit_image(self, class_id, base_color):
-        """Create synthetic fruit images with quality variations"""
-        img = np.zeros((self.image_size[0], self.image_size[1], 3))
-        center_x, center_y = self.image_size[0] // 2, self.image_size[1] // 2
-        
-        # Create fruit shape with quality variations
-        for x in range(self.image_size[0]):
-            for y in range(self.image_size[1]):
-                distance = np.sqrt((x - center_x)**2 + (y - center_y)**2)
-                
-                if distance < 25:  # Fruit body
-                    # Add quality-specific variations
-                    if class_id == 0:  # Fresh - smooth and vibrant
-                        variation = np.random.normal(0, 0.05, 3)
-                    elif class_id == 1:  # Mid - some spots
-                        variation = np.random.normal(0, 0.1, 3)
-                        if np.random.random() < 0.1:  # Add spots
-                            variation += [0.3, 0.3, 0.1]
-                    else:  # Rotten - more variation and spots
-                        variation = np.random.normal(0, 0.15, 3)
-                        if np.random.random() < 0.2:  # More spots
-                            variation += [0.4, 0.2, 0.1]
-                    
-                    img[y, x] = np.clip(base_color + variation, 0, 1)
-        
-        return img
     
     def build_improved_model(self):
         """Build a better CNN model for fruit quality classification"""
         print(" Building improved CNN model...")
         
         self.model = Sequential([
+            # Input layer
+            Input(shape=(*self.image_size, 3)),
+            
             # First block
-            Conv2D(32, (3, 3), activation='relu', padding='same', 
-                  input_shape=(*self.image_size, 3)),
+            Conv2D(32, (3, 3), activation='relu', padding='same'),
             BatchNormalization(),
             Conv2D(32, (3, 3), activation='relu', padding='same'),
             MaxPooling2D(2, 2),
@@ -446,8 +385,8 @@ class FruitQualityClassifier:
         images, labels = self.load_real_dataset()
         
         if images is None or len(images) == 0:
-            print(" Failed to load dataset. Using synthetic data...")
-            images, labels = self.create_synthetic_dataset()
+            print(" Failed to load dataset. Please ensure the dataset is properly extracted.")
+            raise ValueError("Dataset could not be loaded. Please check the dataset path and structure.")
         
         # Prepare data
         X = images

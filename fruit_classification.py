@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
@@ -26,7 +26,7 @@ class FruitClassifier:
         self.class_names = []
         self.num_classes = 0
         self.image_size = (128, 128)  # Increased size for better quality
-        self.dataset_path = "fruq_dataset"
+        self.dataset_path = "FruQ-DB"
     
     def download_and_extract_dataset(self):
         """Download and extract the FruQ-DB dataset"""
@@ -66,7 +66,7 @@ class FruitClassifier:
         except Exception as e:
             print(f" Download failed: {e}")
             print(" Please download manually from: https://zenodo.org/records/7224690/files/FruQ-DB.zip?download=1")
-            print(" And extract to 'fruq_dataset' folder")
+            print(" And extract to 'FruQ-DB' folder in the project root")
             return False
         
         return True
@@ -75,8 +75,8 @@ class FruitClassifier:
         """Load the actual FruQ-DB dataset"""
         print(" Loading real fruit dataset...")
         
-        # Define the main dataset path
-        main_path = os.path.join(self.dataset_path, "FruQ-DB")
+        # Define the main dataset path - it's directly in FruQ-DB folder
+        main_path = self.dataset_path
         
         if not os.path.exists(main_path):
             print(" Dataset not found. Please check the extraction path.")
@@ -161,8 +161,11 @@ class FruitClassifier:
         print(" Building improved CNN model...")
         
         self.model = Sequential([
+            # Input layer
+            Input(shape=(*self.image_size, 3)),
+            
             # First convolutional block
-            Conv2D(32, (3, 3), activation='relu', input_shape=(*self.image_size, 3)),
+            Conv2D(32, (3, 3), activation='relu'),
             BatchNormalization(),
             MaxPooling2D(2, 2),
             Dropout(0.25),
@@ -348,8 +351,8 @@ class FruitClassifier:
         images, labels = self.load_real_dataset()
         
         if images is None or len(images) == 0:
-            print(" Failed to load dataset. Using synthetic data as fallback.")
-            return self._fallback_synthetic()
+            print(" Failed to load dataset. Please ensure the dataset is properly extracted.")
+            raise ValueError("Dataset could not be loaded. Please check the dataset path and structure.")
         
         # Step 2: Explore dataset
         self.explore_dataset(images, labels)
@@ -381,13 +384,6 @@ class FruitClassifier:
         self.plot_results(X_test, y_true, y_pred, y_pred_proba, accuracy)
         
         return accuracy
-    
-    def _fallback_synthetic(self):
-        """Fallback to synthetic data if real dataset fails"""
-        print(" Using synthetic data as fallback...")
-        # You can keep your original synthetic data creation here
-        # ... (your original synthetic data code)
-        pass
 
 def main():
     """Main function"""
