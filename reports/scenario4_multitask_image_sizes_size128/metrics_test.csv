@@ -1,0 +1,30 @@
+Overall Metrics
+Task,Metric,Value
+Quality,Accuracy,1.0
+Quality,Precision,1.0
+Quality,Recall,1.0
+Quality,F1-Score,1.0
+Quality,AUC,1.0
+Fruit Type,Accuracy,1.0
+Fruit Type,Precision,1.0
+Fruit Type,Recall,1.0
+Fruit Type,F1-Score,1.0
+Fruit Type,AUC,1.0
+
+
+Per-Class Metrics
+Task,Class,Precision,Recall,F1-Score
+Quality,Good,1.0,1.0,1.0
+Quality,Mild,1.0,1.0,1.0
+Quality,Rotten,1.0,1.0,1.0
+Fruit Type,BananaDB,1.0,1.0,1.0
+Fruit Type,CucumberQ,1.0,1.0,1.0
+Fruit Type,GrapeQ,1.0,1.0,1.0
+Fruit Type,KakiQ,1.0,1.0,1.0
+Fruit Type,PapayaQ,1.0,1.0,1.0
+Fruit Type,PeachQ,1.0,1.0,1.0
+Fruit Type,PearQ,1.0,1.0,1.0
+Fruit Type,PepperQ,1.0,1.0,1.0
+Fruit Type,StrawberryQ,1.0,1.0,1.0
+Fruit Type,WatermeloQ,1.0,1.0,1.0
+Fruit Type,tomatoQ,1.0,1.0,1.0

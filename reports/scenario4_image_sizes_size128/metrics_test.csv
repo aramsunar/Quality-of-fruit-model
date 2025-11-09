@@ -1,0 +1,14 @@
+Overall Metrics
+Metric,Value
+Accuracy,1.0
+Precision,1.0
+Recall,1.0
+F1-Score,1.0
+AUC,1.0
+
+
+Per-Class Metrics
+Class,Precision,Recall,F1-Score
+Good,1.0,1.0,1.0
+Mild,1.0,1.0,1.0
+Rotten,1.0,1.0,1.0

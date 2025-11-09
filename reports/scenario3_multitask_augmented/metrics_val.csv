@@ -1,0 +1,30 @@
+Overall Metrics
+Task,Metric,Value
+Quality,Accuracy,0.9706353443673251
+Quality,Precision,0.971351380732737
+Quality,Recall,0.9706353443673251
+Quality,F1-Score,0.9708392390090651
+Quality,AUC,0.9968626158746263
+Fruit Type,Accuracy,1.0
+Fruit Type,Precision,1.0
+Fruit Type,Recall,1.0
+Fruit Type,F1-Score,1.0
+Fruit Type,AUC,1.0
+
+
+Per-Class Metrics
+Task,Class,Precision,Recall,F1-Score
+Quality,Good,0.9931389365351629,0.9796954314720813,0.9863713798977853
+Quality,Mild,0.9233870967741935,0.9642105263157895,0.9433573635427395
+Quality,Rotten,0.9836272040302267,0.9677819083023544,0.9756402248594629
+Fruit Type,BananaDB,1.0,1.0,1.0
+Fruit Type,CucumberQ,1.0,1.0,1.0
+Fruit Type,GrapeQ,1.0,1.0,1.0
+Fruit Type,KakiQ,1.0,1.0,1.0
+Fruit Type,PapayaQ,1.0,1.0,1.0
+Fruit Type,PeachQ,1.0,1.0,1.0
+Fruit Type,PearQ,1.0,1.0,1.0
+Fruit Type,PepperQ,1.0,1.0,1.0
+Fruit Type,StrawberryQ,1.0,1.0,1.0
+Fruit Type,WatermeloQ,1.0,1.0,1.0
+Fruit Type,tomatoQ,1.0,1.0,1.0

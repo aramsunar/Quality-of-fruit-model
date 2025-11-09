@@ -1,0 +1,28 @@
+{
+    "AUGMENT": false,
+    "BATCH_SIZE": 32,
+    "DATA_DIR": "/Users/rikusswart/Dev/Neural Networks/fruit-quality-assement-cnn/data/processed/FruQ-combined",
+    "GRAD_CLIP": 1.0,
+    "GRAYSCALE": false,
+    "IMAGE_SIZES": [
+        64,
+        128,
+        224,
+        299
+    ],
+    "INPUT_CHANNELS": 3,
+    "LEARNING_RATE": 0.001,
+    "MIXED_PRECISION": true,
+    "MODEL_NAME": "simple",
+    "NUM_EPOCHS": 50,
+    "NUM_WORKERS": 4,
+    "OPTIMIZER": "adam",
+    "PATIENCE": 10,
+    "SCENARIO_DESCRIPTION": "Testing various image sizes",
+    "SCENARIO_NAME": "scenario4_image_sizes",
+    "SCHEDULER": "plateau",
+    "SEED": 42,
+    "USE_CLASS_WEIGHTS": true,
+    "WARMUP_EPOCHS": 5,
+    "WEIGHT_DECAY": 0.0001
+}

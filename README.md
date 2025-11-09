@@ -1,464 +1,349 @@
-# Fruit Quality Classification Model
+# Fruit Identification and Quality Assessment using Deep Learning
 
-A deep learning project that uses Convolutional Neural Networks (CNN) to classify fruit images into three quality categories: **Fresh**, **Mild**, and **Rotten**. The model is trained on the FruQ-DB (Fruit Quality Database) dataset and achieves high accuracy in distinguishing fruit quality levels.
+## Project Overview
 
-## 📋 Table of Contents
+This project develops deep learning models using Convolutional Neural Networks (CNN) to identify fruit types and assess their quality from images. The project includes both single-task models (quality classification only) and multi-task models (simultaneous fruit type and quality classification). Models are evaluated using comprehensive metrics including accuracy, precision, recall, F1-score, ROC curves, and AUC scores to ensure robust performance.
 
-- [Overview](#overview)
-- [Model Architecture](#model-architecture)
-- [Dataset Structure](#dataset-structure)
-- [How the Model Works](#how-the-model-works)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Requirements](#requirements)
-- [Results](#results)
-- [Project Structure](#project-structure)
+## Objectives
 
-## 🎯 Overview
+- Develop CNN-based deep learning models for fruit classification and quality assessment
+- Implement both single-task (quality only) and multi-task (fruit type + quality) learning approaches
+- Evaluate model performance using multiple metrics:
+  - Accuracy
+  - Precision
+  - Recall
+  - F1-Score
+  - ROC Curves
+  - AUC (Area Under Curve)
+- Analyze the impact of different input data characteristics on model performance
+- Compare single-task vs multi-task learning performance
 
-This project implements two versions of a fruit quality classification system:
-
-1. **fruit_classification.py** - Basic CNN model with dataset download functionality
-2. **Fruit_Quality.py** - Advanced CNN model with enhanced architecture and visualization
-
-Both models classify fruit images into three quality categories based on visual appearance:
-
-- **Fresh**: High-quality, vibrant fruits
-- **Mild**: Medium-quality fruits showing early signs of degradation
-- **Rotten**: Low-quality fruits with significant deterioration
-
-## 🏗️ Model Architecture
-
-### CNN Architecture Details
-
-The model uses a deep Convolutional Neural Network with the following architecture:
-
-#### **Input Layer**
-
-- Input shape: (128, 128, 3) - RGB images resized to 128x128 pixels
-
-#### **Convolutional Blocks** (4 blocks)
-
-**Block 1:**
-
-- Conv2D: 32 filters, 3×3 kernel, ReLU activation
-- Batch Normalization
-- MaxPooling: 2×2
-- Dropout: 25%
-
-**Block 2:**
-
-- Conv2D: 64 filters, 3×3 kernel, ReLU activation
-- Batch Normalization
-- MaxPooling: 2×2
-- Dropout: 25%
-
-**Block 3:**
-
-- Conv2D: 128 filters, 3×3 kernel, ReLU activation
-- Batch Normalization
-- MaxPooling: 2×2
-- Dropout: 25%
-
-**Block 4:**
-
-- Conv2D: 256 filters, 3×3 kernel, ReLU activation
-- Batch Normalization
-- MaxPooling: 2×2
-- Dropout: 25%
-
-#### **Fully Connected Layers**
-
-- Flatten layer
-- Dense: 512 units, ReLU activation
-- Batch Normalization
-- Dropout: 50%
-- Dense: 256 units, ReLU activation
-- Dropout: 50%
-- Output Dense: 3 units (classes), Softmax activation
-
-#### **Compilation Settings**
-
-- **Optimizer**: Adam (learning rate: 0.0001)
-- **Loss Function**: Categorical Crossentropy
-- **Metrics**: Accuracy
-
-### Training Features
-
-1. **Data Augmentation**:
-
-   - Rotation: ±20 degrees
-   - Width/Height shift: 20%
-   - Horizontal flip: Yes
-   - Zoom: 20%
-   - Shear: 20%
-   - Fill mode: Nearest
-
-2. **Callbacks**:
-
-   - Early Stopping: Patience of 5-10 epochs
-   - ReduceLROnPlateau: Reduces learning rate by 50% after 3-5 epochs without improvement
-
-3. **Data Split**:
-   - Training: 64% of data
-   - Validation: 16% of data
-   - Testing: 20% of data
-
-## 📁 Dataset Structure
-
-The model expects the FruQ-DB dataset to be organized in the following structure:
+## Project Structure
 
 ```
-FruQ-DB/
-├── Fresh/
-│   ├── Image1.png
-│   ├── Image1 (2).png
-│   ├── Image3.png
-│   └── ... (multiple fruit images)
-├── Mild/
-│   ├── Image1.png
-│   ├── Image1 (2).png
-│   ├── Image101.png
-│   └── ... (multiple fruit images)
-└── Rotten/
-    ├── Image1.png
-    ├── Image1 (2).png
-    ├── Image101.png
-    └── ... (multiple fruit images)
+fruit-identification-and-quality/
+├── venv/                    # Virtual environment
+├── data/                    # Dataset storage
+│   ├── raw/                 # Original datasets
+│   ├── processed/           # Preprocessed data
+│   └── README.md            # Data documentation
+├── src/                     # Source code
+│   ├── main.py              # Main entry point for running scenarios
+│   │
+│   ├── Single-Task Scenarios (Quality Classification Only)
+│   ├── scenario1_baseline.py          # Normal colored images
+│   ├── scenario2_grayscale.py         # Grayscale images
+│   ├── scenario3_augmented.py         # Augmented colored images
+│   ├── scenario4_image_sizes.py       # Various image sizes
+│   │
+│   ├── Multi-Task Scenarios (Fruit Type + Quality Classification)
+│   ├── scenario1_multitask.py                # Normal colored images
+│   ├── scenario2_multitask_grayscale.py      # Grayscale images
+│   ├── scenario3_multitask_augmented.py      # Augmented colored images
+│   ├── scenario4_multitask_image_sizes.py    # Various image sizes
+│   │
+│   ├── Single-Task Components
+│   ├── data_loader.py       # Data loading utilities
+│   ├── model.py             # CNN model architectures
+│   ├── training.py          # Training loops and utilities
+│   ├── evaluation.py        # Evaluation metrics and visualization
+│   │
+│   ├── Multi-Task Components
+│   ├── multitask_data_loader.py       # Multi-task data loading (dual labels)
+│   ├── multitask_model.py             # Multi-task CNN architectures
+│   ├── multitask_training.py          # Multi-task training utilities
+│   ├── multitask_evaluation.py        # Multi-task evaluation metrics
+│   │
+│   └── utils.py             # Shared helper functions
+├── results/                 # Saved model checkpoints and outputs
+├── reports/                 # Generated reports and visualizations
+├── requirements.txt         # Python dependencies
+└── README.md               # This file
 ```
 
-### Dataset Requirements
+## Experimental Scenarios
 
-- **Format**: PNG images (JPG/JPEG also supported)
-- **Organization**: One folder per class containing all images for that class
-- **Classes**: Exactly 3 classes (Fresh, Mild, Rotten)
-- **Image Size**: Any size (automatically resized to 128×128 during processing)
-- **Naming**: Any valid filename (e.g., Image1.png, Image1 (2).png)
+This project investigates different scenarios to analyze how input data characteristics affect model performance. Each scenario is implemented in both **single-task** (quality classification only) and **multi-task** (fruit type + quality classification) variants.
 
-### Dataset Location
+### Single-Task Scenarios (Quality Classification Only)
 
-Place the FruQ-DB folder in the project root directory:
+| Scenario           | Description                                                        | Status | Key Findings |
+| ------------------ | ------------------------------------------------------------------ | ------ | ------------ |
+| **1. Baseline**    | Normal colored images with standard preprocessing                  | Ready  | -            |
+| **2. Grayscale**   | Convert colored images to grayscale to test color dependency       | Ready  | -            |
+| **3. Augmented**   | Apply data augmentation techniques to colored images               | Ready  | -            |
+| **4. Image Sizes** | Test multiple image resolutions (64x64, 128x128, 224x224, 299x299) | Ready  | -            |
 
-```
-Quality-of-fruit-model/
-├── FruQ-DB/
-│   ├── Fresh/
-│   ├── Mild/
-│   └── Rotten/
-├── fruit_classification.py
-├── Fruit_Quality.py
-└── README.md
-```
+### Multi-Task Scenarios (Fruit Type + Quality Classification)
 
-## 🔬 How the Model Works
+| Scenario                      | Description                                                 | Status | Key Findings |
+| ----------------------------- | ----------------------------------------------------------- | ------ | ------------ |
+| **1. Multi-Task Baseline**    | Normal colored images, dual classification heads            | Ready  | -            |
+| **2. Multi-Task Grayscale**   | Grayscale images, test color dependency for both tasks      | Ready  | -            |
+| **3. Multi-Task Augmented**   | Data augmentation for improved generalization on both tasks | Ready  | -            |
+| **4. Multi-Task Image Sizes** | Test image resolutions for both tasks simultaneously        | Ready  | -            |
 
-### 1. **Data Loading & Preprocessing**
+### Scenario Details
 
-```python
-# Images are loaded and preprocessed
-- Read images using OpenCV
-- Convert from BGR to RGB color space
-- Resize to 128×128 pixels
-- Normalize pixel values to [0, 1] range
-- Assign labels based on folder names
-```
+#### Single-Task Scenarios
 
-### 2. **Feature Extraction**
+**Scenario 1: Baseline (Normal Colored Images)**
 
-The CNN learns hierarchical features:
+- Establish baseline performance using standard colored images
+- Standard preprocessing: resize, normalization
+- Provides benchmark for all other scenarios
+- Output: Quality classification (3 classes: Good, Mild, Rotten)
 
-- **Early layers**: Basic features (edges, colors, textures)
-- **Middle layers**: Complex patterns (shapes, spots, discoloration)
-- **Deep layers**: High-level features (overall quality indicators)
+**Scenario 2: Grayscale Images**
 
-### 3. **Classification Process**
+- Convert all images to grayscale to assess color dependency
+- Determine if color information is critical for fruit quality assessment
+- Compare performance metrics against baseline
+- Output: Quality classification
 
-```
-Input Image (128×128×3)
-    ↓
-Convolutional Blocks (Feature Extraction)
-    ↓
-Flatten
-    ↓
-Fully Connected Layers (Classification)
-    ↓
-Softmax (Probability Distribution)
-    ↓
-Output: [Fresh, Mild, Rotten] probabilities
-```
+**Scenario 3: Data Augmentation**
 
-### 4. **Prediction**
+- Apply augmentation techniques: rotation, flipping, brightness/contrast adjustment
+- Evaluate if augmentation improves model generalization
+- Analyze impact on overfitting
+- Output: Quality classification
 
-The model outputs a probability distribution over three classes:
+**Scenario 4: Various Image Sizes**
 
-- Class with highest probability is the predicted quality
-- Confidence score indicates prediction certainty
+- Test multiple input resolutions to find optimal size-performance tradeoff
+- Resolutions tested: 64x64, 128x128
+- Balance between computational cost and accuracy
+- Output: Quality classification
 
-## 🚀 Installation
+#### Multi-Task Scenarios
+
+**Scenario 1: Multi-Task Baseline (Normal Colored Images)**
+
+- Establish baseline for multi-task learning using standard colored images
+- Shared convolutional backbone with dual classification heads
+- Standard preprocessing: resize, normalization
+- Output: Fruit type (11 classes) + Quality (3 classes)
+
+**Scenario 2: Multi-Task Grayscale**
+
+- Convert all images to grayscale to assess color dependency for both tasks
+- Determine if color is critical for fruit type identification vs quality assessment
+- Compare impact on both tasks
+- Output: Fruit type + Quality
+
+**Scenario 3: Multi-Task Data Augmentation**
+
+- Apply augmentation techniques to improve generalization for both tasks
+- Evaluate if augmentation benefits both tasks equally
+- Analyze task-specific overfitting patterns
+- Output: Fruit type + Quality
+
+**Scenario 4: Multi-Task Various Image Sizes**
+
+- Test multiple input resolutions for dual-head architecture
+- Find optimal size for both fruit type and quality classification
+- Analyze if different tasks benefit from different resolutions
+- Resolutions tested: 64x64, 128x128
+- Output: Fruit type + Quality
+
+## Setup Instructions
 
 ### Prerequisites
 
-- Python 3.7 or higher
+- Python 3.8 or higher
 - pip package manager
 
-### Step 1: Clone the Repository
+### Installation
 
-```bash
-git clone https://github.com/aramsunar/Quality-of-fruit-model.git
-cd Quality-of-fruit-model
-```
+1. Clone or download this repository
 
-### Step 2: Set Up Virtual Environment (Recommended)
-
-#### Option A: Automated Setup (macOS/Linux)
-
-Use the provided setup script:
-
-```bash
-./setup.sh
-```
-
-This will:
-
-- Create a virtual environment
-- Activate it
-- Install all dependencies
-
-#### Option B: Manual Setup
-
-**Create virtual environment:**
+2. Create and activate virtual environment:
 
 ```bash
 # Create virtual environment
 python3 -m venv venv
 
-# Activate virtual environment
-# On macOS/Linux:
+# Activate on macOS/Linux
 source venv/bin/activate
 
-# On Windows:
+# Activate on Windows
 venv\Scripts\activate
 ```
 
-**Install dependencies:**
+3. Install dependencies:
 
 ```bash
-# Upgrade pip
-pip install --upgrade pip
-
-# Install all required packages
 pip install -r requirements.txt
 ```
 
-**To deactivate the virtual environment:**
+### Dataset Setup
 
-```bash
-deactivate
+Place your fruit dataset in the `data/processed/FruQ-combined/` directory. The expected structure is:
+
 ```
-
-### Step 3: Prepare Dataset
-
-Ensure your FruQ-DB dataset is structured correctly:
-
-```bash
-Quality-of-fruit-model/
-└── FruQ-DB/
-    ├── Fresh/
+data/processed/FruQ-combined/
+├── train/
+│   ├── Good/
+│   ├── Mild/
+│   └── Rotten/
+├── val/
+│   ├── Good/
+│   ├── Mild/
+│   └── Rotten/
+└── test/
+    ├── Good/
     ├── Mild/
     └── Rotten/
 ```
 
-## 💻 Usage
+**Important for Multi-Task Learning**:
+The multi-task models extract fruit type information from the filename prefix. Image files should follow the naming convention:
 
-**Note:** Make sure your virtual environment is activated before running the scripts:
+```
+FruitType_ImageName.png
+```
+
+Examples:
+
+- `BananaDB_Image001.png`
+- `PeachQ_Image042.png`
+- `tomatoQ_Image123.png`
+
+The multi-task data loader automatically parses these filenames to create dual labels:
+
+- Quality label: from folder name (Good/Mild/Rotten)
+- Fruit type label: from filename prefix (BananaDB/PeachQ/etc.)
+
+## Usage
+
+### Running Single-Task Scenarios (Quality Classification Only)
+
+Execute scenarios using the main entry point or run files directly:
 
 ```bash
-source venv/bin/activate  # On macOS/Linux
-# or
-venv\Scripts\activate     # On Windows
+# Run specific scenario
+python src/main.py --scenario 1  # Baseline
+python src/main.py --scenario 2  # Grayscale
+python src/main.py --scenario 3  # Augmented
+python src/main.py --scenario 4  # Image sizes
+
+# Or run individual scenario files directly
+python src/scenario1_baseline.py
+python src/scenario2_grayscale.py
+python src/scenario3_augmented.py
+python src/scenario4_image_sizes.py
 ```
 
-### Running the Basic Model (fruit_classification.py)
+### Running Multi-Task Scenarios (Fruit Type + Quality Classification)
+
+Run multi-task scenarios directly:
 
 ```bash
-python fruit_classification.py
+# Multi-task scenarios
+python src/scenario1_multitask.py                # Baseline
+python src/scenario2_multitask_grayscale.py      # Grayscale
+python src/scenario3_multitask_augmented.py      # Augmented
+python src/scenario4_multitask_image_sizes.py    # Various image sizes
 ```
 
-This script will:
+## Evaluation Metrics
 
-1. Load the FruQ-DB dataset from the local folder
-2. Display dataset statistics and sample images
-3. Build and train the CNN model
-4. Evaluate on test data
-5. Display comprehensive visualizations:
-   - Training/validation loss curves
-   - Training/validation accuracy curves
-   - Confusion matrix
-   - Sample predictions with confidence scores
+### Single-Task Models (Quality Classification)
 
-### Running the Advanced Model (Fruit_Quality.py)
+The models are evaluated using the following metrics:
 
-```bash
-python Fruit_Quality.py
-```
+- **Accuracy**: Overall correctness of predictions
+- **Precision**: Ratio of correct positive predictions
+- **Recall**: Ratio of actual positives correctly identified
+- **F1-Score**: Harmonic mean of precision and recall
+- **ROC Curves**: True Positive Rate vs False Positive Rate
+- **AUC**: Area under the ROC curve
 
-This script provides:
+### Multi-Task Models (Fruit Type + Quality Classification)
 
-1. Automatic dataset structure exploration
-2. Enhanced model architecture
-3. More detailed visualizations including:
-   - Training history plots
-   - Confusion matrix with annotations
-   - Class distribution analysis
-   - Per-class accuracy breakdown
-   - Sample predictions with confidence scores
+Multi-task models are evaluated separately for each task:
 
-### Expected Output
+- **Quality Classification Metrics**: Accuracy, Precision, Recall, F1-Score, ROC, AUC
+- **Fruit Type Classification Metrics**: Accuracy, Precision, Recall, F1-Score, ROC, AUC
+- **Combined Metrics**: Average performance across both tasks
+- **Per-Task Visualization**: Separate confusion matrices and ROC curves for each task
 
-Both scripts will display:
+## Multi-Task Learning Architecture
+
+The multi-task models use a shared convolutional backbone with dual classification heads:
+
+### Architecture Overview
 
 ```
-======================================================================
- FRUIT QUALITY CLASSIFICATION
-======================================================================
-✓ Loading dataset...
-✓ Found 3 classes: ['Fresh', 'Mild', 'Rotten']
-✓ Successfully loaded X,XXX images
-✓ Building CNN model...
-✓ Training model...
-✓ Evaluating model...
-
-CLASSIFICATION REPORT:
-              precision    recall  f1-score   support
-       Fresh       0.XX      0.XX      0.XX       XXX
-        Mild       0.XX      0.XX      0.XX       XXX
-      Rotten       0.XX      0.XX      0.XX       XXX
-======================================================================
+Input Image (RGB or Grayscale)
+    ↓
+Shared Convolutional Backbone
+├── Conv Block 1 (32 filters)
+├── Conv Block 2 (64 filters)
+├── Conv Block 3 (128 filters)
+└── Conv Block 4 (256 filters)
+    ↓
+Shared Feature Extraction (512 units)
+    ↓
+    ├─→ Quality Classification Head
+    │   ├── FC Layer (256 units)
+    │   └── Output (3 classes: Good, Mild, Rotten)
+    │
+    └─→ Fruit Type Classification Head
+        ├── FC Layer (256 units)
+        └── Output (11 classes: fruit types)
 ```
 
-## 📦 Requirements
+### Key Features
 
-### Python Libraries
+- **Shared Learning**: Both tasks learn from the same low-level features
+- **Task-Specific Heads**: Separate fully connected layers for each task
+- **Configurable Loss Weights**: Balance quality vs fruit type importance
+- **Dual Metrics Tracking**: Monitor both tasks during training
+- **Combined Optimization**: Best model selected based on average accuracy
 
-```txt
-numpy>=1.19.0
-matplotlib>=3.3.0
-tensorflow>=2.4.0
-opencv-python>=4.5.0
-scikit-learn>=0.24.0
-tqdm>=4.50.0
-pandas>=1.1.0
-requests>=2.25.0
-```
+## Technology Stack
 
-### Hardware Requirements
+- **Deep Learning Framework**: PyTorch
+- **Data Processing**: NumPy, Pandas
+- **Computer Vision**: OpenCV, Pillow, torchvision
+- **Machine Learning**: scikit-learn
+- **Visualization**: Matplotlib, Seaborn
 
-- **Minimum**:
+## Report Generation
 
-  - CPU: Dual-core processor
-  - RAM: 8 GB
-  - Storage: 2 GB free space
+### Single-Task Results
 
-- **Recommended**:
-  - GPU: NVIDIA GPU with CUDA support
-  - RAM: 16 GB or more
-  - Storage: 5 GB free space
+Results and visualizations are automatically saved in the `results/` directory:
 
-## 📊 Results
+- Confusion matrices
+- ROC curves
+- Training/validation loss and accuracy curves
+- Performance comparison tables
+- Metrics CSV files
 
-The model achieves:
+### Multi-Task Results
 
-- **Overall Accuracy**: Typically 85-95% on test data
-- **Training Time**: 15-30 minutes (depending on hardware)
-- **Inference Time**: < 100ms per image
+Multi-task scenarios generate comprehensive reports for both tasks:
 
-### Performance Metrics
+- Separate confusion matrices for quality and fruit type classification
+- Separate ROC curves for both tasks
+- Multi-panel training history (showing both tasks)
+- Combined metrics CSV with per-task breakdown
+- Model architecture summaries with parameter counts per head
 
-The model provides:
+## Development Status
 
-- **Classification Report**: Precision, Recall, F1-Score for each class
-- **Confusion Matrix**: Detailed breakdown of predictions
-- **Per-Class Accuracy**: Individual accuracy for Fresh, Mild, and Rotten
-- **Confidence Scores**: Probability distribution for each prediction
+This is an active research project. The README will be updated throughout development with:
 
-### Visualizations
+- Experimental results
+- Key findings
+- Model performance comparisons
+- Best practices identified
+- Lessons learned
 
-Both scripts generate:
+## Contributors
 
-1. Training/validation loss and accuracy curves
-2. Confusion matrix heatmap
-3. Sample predictions with true/predicted labels
-4. Class distribution charts
-5. Per-class accuracy bar charts
-
-## 📂 Project Structure
-
-```
-Quality-of-fruit-model/
-├── FruQ-DB/                      # Dataset directory
-│   ├── Fresh/                    # Fresh fruit images
-│   ├── Mild/                     # Mild quality fruit images
-│   └── Rotten/                   # Rotten fruit images
-├── venv/                         # Virtual environment (created after setup)
-├── fruit_classification.py       # Basic CNN implementation
-├── Fruit_Quality.py              # Advanced CNN implementation
-├── requirements.txt              # Python dependencies
-├── setup.sh                      # Automated setup script (macOS/Linux)
-├── .gitignore                    # Git ignore file
-└── README.md                     # Project documentation
-```
-
-## 🔧 Customization
-
-### Adjusting Model Parameters
-
-You can modify hyperparameters in the scripts:
-
-```python
-# Image size
-self.image_size = (128, 128)  # Change to (224, 224) for higher resolution
-
-# Learning rate
-optimizer=Adam(learning_rate=0.0001)  # Adjust as needed
-
-# Epochs
-epochs=30  # Increase for more training
-
-# Batch size
-batch_size=32  # Adjust based on memory
-```
-
-### Using Custom Datasets
-
-To use your own dataset:
-
-1. Organize images in class folders
-2. Update the dataset path:
-   ```python
-   self.dataset_path = "your_dataset_folder"
-   ```
-3. Ensure folder names match your classes
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit issues or pull requests.
-
-## 📄 License
-
-This project uses the FruQ-DB dataset. Please refer to the dataset's license for usage terms.
-
-## 📚 References
-
-- FruQ-DB Dataset: [Zenodo Repository](https://zenodo.org/records/7224690)
-- TensorFlow Documentation: [tensorflow.org](https://www.tensorflow.org/)
-- Keras Documentation: [keras.io](https://keras.io/)
-
-## 👤 Author
-
-**Rikus Swart**
-
-- GitHub: [@aramsunar](https://github.com/aramsunar)
+This project is developed as part of a the ITRI626 module focused on practical application of CNN architectures for image classification tasks with the aim to apply the theory that was learned in class to the application and implementation of real world examples.
 
 ---
-
-_Last Updated: November 2025_
