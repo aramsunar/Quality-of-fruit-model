@@ -1,0 +1,114 @@
+\chapter{SCENARIO 3: AUGMENTED IMAGES}
+
+\section{Introduction}
+
+Scenario 3 we explore the impact of data augmentation techniques on fruit quality classification performance using standard RGB colour images. This scenario applies a comprehensive suite of image transformations during training to artificially alter the training data and improve model generalisation. Data augmentation addresses the fundamental challenge of limited training data by generating synthetic variations of existing samples. This is especially useful for cases such as this where the base dataset only contains near perfect images. This does not represent realistic scenarios and can give a false indication of a models performance.
+
+The primary objective of this scenario is to determine whether data augmentation can enhance model robustness and generalisation capability beyond the baseline RGB performance established in Scenario 1. Data augmentation is theoretically expected to improve generalisation by exposing the model to a wider range of input variations during training, forcing it to learn more invariant feature representations that are robust to transformations likely encountered in real-world deployment.
+
+\section{Configuration}
+
+Table~\ref{tab:scenario3_config} presents the complete configuration for Scenario 3. The configuration is identical to Scenario 1 except for the enabled data augmentation, allowing direct attribution of performance differences to augmentation effects.
+
+\begin{table}[h]
+\centering
+\caption{Configuration parameters for Scenario 3}
+\label{tab:scenario3_config}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\ \midrule
+Model Architecture & Simple CNN \\
+Input Channels & 3 (RGB) \\
+Image Size & $224 \times 224$ \\
+Batch Size & 32 \\
+Epochs & 50 \\
+Learning Rate & 0.001 \\
+Optimizer & Adam \\
+Weight Decay & 0.0001 \\
+Scheduler & ReduceLROnPlateau \\
+Patience & 10 epochs \\
+Gradient Clipping & 1.0 \\
+Warmup Epochs & 5 \\
+Mixed Precision & Enabled \\
+Class Weights & Enabled (auto-computed) \\
+Augmentation & \textbf{Enabled} \\
+Grayscale & Disables \\
+Random Seed & 42 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Augmentation specifications for Scenario 3}
+\label{tab:scenario3_augmentation}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Property} & \textbf{Value} \\ \midrule
+Random Rotation & $\pm 10$ degrees \\
+Horizontal Flip & 50\% probability \\
+Vertical Flip & 50\% probability \\
+Colour Jitter & Brightness $\pm 20$\%, Contrast $\pm 20$\%, Saturation $\pm 20$\%, Hue $\pm 10$\% \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{Results and Analysis}
+
+The augmented model achieved 98.99\% validation accuracy and 99.25\% test accuracy. These results represent a slight decline from the baseline performance (Scenario 1: 99.84\% validation, 99.79\% test). The near-perfect AUC scores (0.9998 for validation, 0.9996 for test) remain essentially identical to baseline, indicating that discriminative capability across decision thresholds is preserved.
+
+The increased error count compared to baseline (validation: 19 versus 3 errors; test: 7 versus 2 errors) suggests that data augmentation introduced additional classification difficulty rather than improving generalisation. This counterintuitive result can be explained by several factors:
+
+\begin{enumerate}
+    \item The baseline model already achieved near-optimal performance (99.84\%), leaving minimal room for improvement
+    \item Aggressive augmentation transformations may have created training samples that no longer accurately represent the quality categories, forcing the model to learn overly general features that sacrifice precision on unaugmented test images
+    \item The augmentation induced training difficulty may have prevented the model from fully converging to the optimal decision boundaries achieved by the baseline
+\end{enumerate}
+
+\subsection{Confusion Matrix Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/scenario3_confusion_matrix_val.png}
+\caption{Validation confusion matrix}
+\label{fig:scenario3_confusion}
+\end{figure}
+
+\subsection{ROC Curve Analysis}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario3_roc_test.png}
+\caption{ROC test}
+\label{fig:scenario3_roc_test}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario3_roc_val.png}
+\caption{ROC validation}
+\label{fig:scenario3_roc_val}
+\end{minipage}
+\end{figure}
+
+\subsection{Training History}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/scenario3_training_history.png}
+\caption{Training history}
+\label{fig:scenario3_training}
+\end{figure}
+
+\section{Why Augmentation Reduced Performance}
+
+Several factors explain why data augmentation decreased performance despite its theoretical benefits. First, a ceiling effect occurred as baseline already achieved near-optimal performance (99.84\%), leaving minimal room for augmentation-driven improvement since the fruit quality task may be sufficiently straightforward that standard RGB images provide all necessary information for nearly perfect classification.
+
+Secondly, augmentation-induced ambiguity arose because aggressive colour jitter ($\pm 20$\% brightness/contrast/saturation) may have transformed samples in ways that genuinely changed their perceived quality category, for example, reducing brightness on good fruit might make it appear mildly degraded, or increasing brightness on rotten fruit might mask decay indicators.
+
+\section{Conclusion}
+
+The data augmentation scenario showed some interesting results. While augmentation usually helps models generalise better, it actually degraded performance on this task where the baseline was already nearly perfect. The augmented model got 98.99\% validation accuracy and 99.25\% test accuracy, which was about 0.85 and 0.54 percentage points lower than the original baseline.
+
+But the important thing is this wasn't because of overfitting. The validation accuracy stayed at or above training accuracy the whole time, the test scores were even better than validation, and the model still had nearly perfect AUC scores above 0.999. All the mistakes happened between neighbouring categories like Good to Mild or Mild to Rotten, never jumping from Good straight to Rotten, which means the model still understood the quality progression properly.
+
+What really stood out was how differently the augmented model learned compared to baseline. It took way longer to converge, around 20-25 epochs just to hit 95\% accuracy while the baseline shot past 99\% in only 5-8 epochs. The training curves kept bouncing around instead of smoothing out, and the model struggled to get much above 98-99\% on training data while validation kept pace or even did better.

@@ -1,0 +1,221 @@
+\chapter{SCENARIO 3: MULTI-TASK AUGMENTED IMAGES}
+
+\section{Introduction}
+
+Scenario 3 explores the impact of data augmentation techniques on multi-task fruit classification performance using standard RGB colour images. This scenario applies a comprehensive suite of geometric and photometric transformations during training to artificially expand the effective training set size and potentially improve model robustness to variations in fruit orientation, lighting conditions, and imaging parameters.
+
+The primary objective centres on determining whether data augmentation provides benefits for multi-task learning, and critically, whether augmentation affects both tasks equally or introduces task-specific performance trade-offs. The fruit type identification task, which achieved perfect 100\% accuracy in both baseline and grayscale scenarios, might prove robust to augmentation-induced variations given the distinctive inter-fruit visual differences. The quality classification task, conversely, involves more subtle discrimination between adjacent quality levels (particularly Good versus Mild and Mild versus Rotten boundaries) that might prove more sensitive to augmentation transformations that alter colour, brightness, or texture characteristics.
+
+The augmentation pipeline employed in this scenario includes both geometric transformations (random rotation ±10 degrees, horizontal and vertical flipping with 50\% probability) and photometric adjustments (colour jitter: brightness ±20\%, contrast ±20\%, saturation ±20\%, hue ±10\%). These transformations simulate realistic variations that might occur during image acquisition in agricultural applications, where camera angles, fruit orientations, and lighting conditions vary considerably.
+
+\section{Configuration}
+
+Table 22 presents the configuration for multi-task Scenario 3. The configuration is identical to multi-task Scenario 1 except for the enabled data augmentation, allowing direct attribution of performance differences to augmentation effects.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+Parameter              & Value                   \\
+\midrule
+Model Architecture     & Multi-Task Simple CNN   \\
+Input Channels         & 3 (RGB)                 \\
+Image Size             & 224 × 224               \\
+Batch Size             & 32                      \\
+Epochs                 & 50                      \\
+Learning Rate          & 0.001                   \\
+Optimizer              & Adam                    \\
+Weight Decay           & 0.0001                  \\
+Scheduler              & ReduceLROnPlateau       \\
+Patience               & 10 epochs               \\
+Gradient Clipping      & 1.0                     \\
+Warmup Epochs          & 5                       \\
+Mixed Precision        & Enabled                 \\
+Class Weights          & Enabled (auto-computed) \\
+Quality Task Weight    & 1.0                     \\
+Fruit Type Task Weight & 1.0                     \\
+Augmentation           & \textbf{Enabled}        \\
+Grayscale              & Disabled                \\
+Random Seed            & 42                      \\
+\bottomrule
+\end{tabular}
+\caption{Configuration parameters for multi-task Scenario 3}
+\label{tab:scenario13_config}
+\end{table}
+
+Table 23 specifies the augmentation transformations applied:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+Property        & Value                                                     \\
+\midrule
+Random Rotation & ±10 degrees                                               \\
+Horizontal Flip & 50\% probability                                          \\
+Vertical Flip   & 50\% probability                                          \\
+Colour Jitter   & Brightness ±20\%, Contrast ±20\%, Saturation ±20\%, Hue ±10\% \\
+\bottomrule
+\end{tabular}
+\caption{Augmentation specifications for multi-task Scenario 3}
+\label{tab:scenario13_augmentation}
+\end{table}
+
+\section{Results and Analysis}
+
+\subsection{Overall Performance Metrics}
+
+Scenario 3 revealed differential augmentation impact across tasks, with quality classification experiencing substantial performance degradation whilst fruit type identification maintained perfect accuracy. Table 24 presents comprehensive performance metrics, revealing a pronounced task-specific response to augmentation.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llccc}
+\toprule
+Task           & Metric    & Validation & Test    & Δ from MT S1      \\
+\midrule
+\textbf{Quality}    & Accuracy  & 97.06\%     & 96.59\%  & -2.83\% / -3.30\%   \\
+                    & Precision & 97.14\%     & 96.88\%  & -2.75\% / -3.01\%   \\
+                    & Recall    & 97.06\%     & 96.59\%  & -2.83\% / -3.30\%   \\
+                    & F1-Score  & 97.08\%     & 96.65\%  & -2.81\% / -3.24\%   \\
+                    & AUC       & 0.9969     & 0.9955  & -0.0031 / -0.0045 \\
+\textbf{Fruit Type} & Accuracy  & 100.00\%    & 100.00\% & 0.00\%             \\
+                    & Precision & 100.00\%    & 100.00\% & 0.00\%             \\
+                    & Recall    & 100.00\%    & 100.00\% & 0.00\%             \\
+                    & F1-Score  & 100.00\%    & 100.00\% & 0.00\%             \\
+                    & AUC       & 1.0000     & 1.0000  & 0.0000            \\
+\bottomrule
+\end{tabular}
+\caption{Overall performance metrics for multi-task Scenario 3}
+\label{tab:scenario13_metrics}
+\end{table}
+
+The fruit type classification task maintained perfect 100\% accuracy across all metrics on both validation and test sets, with zero errors among 1873 validation samples and 939 test samples. This perfect performance exactly matches both RGB baseline and grayscale scenarios, demonstrating exceptional robustness to augmentation transformations. The result indicates that inter-fruit visual differences (texture patterns, shape characteristics, grayscale intensity distributions) are sufficiently pronounced that geometric distortions and photometric variations do not introduce classification ambiguity. The fruit type identification task appears highly robust to realistic imaging variations.
+
+The quality classification task, conversely, experienced substantial performance degradation under augmentation. Validation accuracy dropped to 97.06\% (down 2.83\% from baseline's 99.89\%), whilst test accuracy dropped to 96.59\% (down 3.30\% from baseline's 99.89\%). The validation set produced 55 misclassifications among 1873 samples (compared to 2 errors in baseline), whilst the test set produced 32 errors among 939 samples (compared to 1 error in baseline). The AUC scores declined to 0.9969 on validation and 0.9955 on test, down from perfect 1.0000 in baseline, indicating reduced probability calibration quality.
+
+This substantial degradation of quality classification performance whilst fruit type identification remained perfect reveals task-specific augmentation sensitivity. The findings suggest that aggressive augmentation transformations, particularly colour jitter (brightness, contrast, saturation adjustments), may have distorted subtle quality indicators more severely than fruit-defining characteristics. Colour shifts that alter perceived browning, spotting, or discolouration patterns critical for quality assessment might push borderline samples across quality boundaries, forcing the model to learn overly general features that sacrifice precision on unaugmented evaluation images. Fruit type features (overall shape, surface texture patterns, structural characteristics), conversely, appear robust to these transformations.
+
+\subsection{Per-Class Performance Analysis}
+
+Table 25 presents detailed per-class metrics, revealing how augmentation affected classification performance across quality categories whilst maintaining perfect fruit type classification.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llcccc}
+\toprule
+Task           & Class           & Split      & Precision & Recall  & F1-Score \\
+\midrule
+\textbf{Quality}    & Good            & Validation & 99.31\%    & 97.97\%  & 98.64\%   \\
+                    &                 & Test       & 99.66\%    & 97.31\%  & 98.47\%   \\
+                    & Mild            & Validation & 92.34\%    & 96.42\%  & 94.34\%   \\
+                    &                 & Test       & 89.02\%    & 98.74\%  & 93.63\%   \\
+                    & Rotten          & Validation & 98.36\%    & 96.78\%  & 97.56\%   \\
+                    &                 & Test       & 99.48\%    & 94.80\%  & 97.08\%   \\
+\textbf{Fruit Type} & (All 11 fruits) & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &                 & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+\bottomrule
+\end{tabular}
+\caption{Per-class performance metrics for multi-task Scenario 3}
+\label{tab:scenario13_perclass}
+\end{table}
+
+The quality classification results reveal unbalanced performance degradation across quality categories. The ``Mild'' class experienced the most severe decline, achieving only 92.34\% validation precision and 89.02\% test precision, representing drops of approximately 7.5\% from baseline. The ``Mild'' class F1-scores dropped to 94.34\% on validation and 93.63\% on test, down from baseline's 99.79\%. This substantial degradation indicates that intermediate-quality fruit showing early deterioration proved highly sensitive to augmentation transformations.
+
+The ``Good'' class maintained relatively strong performance with 98.64\% validation F1-score and 98.47\% test F1-score, down approximately 1.3\% from baseline's near-perfect performance. The ``Rotten'' class showed intermediate degradation with 97.56\% validation F1-score and 97.08\% test F1-score, down approximately 2.4\% from baseline. The error pattern suggests that augmentation-induced colour and brightness variations most severely affected discrimination of subtle quality indicators characteristic of the Mild category, whilst more pronounced features of Good (pristine appearance) and Rotten (severe degradation) remained relatively recognisable.
+
+The fruit type classification results maintained perfect 100\% across all metrics for all 11 fruit types on both validation and test sets, exactly matching baseline performance. This comprehensive perfect performance confirms that fruit-defining visual characteristics proved entirely robust to geometric distortions and photometric variations introduced by augmentation.
+
+\section{Confusion Matrix Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/scenario13_quality_confusion_val.png}
+\caption{Quality Task Validation Confusion Matrix}
+\label{fig:scenario13_quality_confusion}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/scenario13_fruit_confusion_val.png}
+\caption{Fruit Type Task Validation Confusion Matrix}
+\label{fig:scenario13_fruit_confusion}
+\end{figure}
+
+The quality task validation confusion matrix reveals 55 misclassifications among 1873 samples, distributed across multiple class boundaries with concentration at the Good-Mild and Mild-Rotten interfaces. The primary error pattern shows bidirectional confusion between adjacent quality categories: Good samples classified as Mild, Mild samples classified as Good, Mild samples classified as Rotten, and Rotten samples classified as Mild. The Mild class bore the primary burden of classification errors, consistent with per-class metrics showing severely degraded precision and recall for intermediate-quality fruit.
+
+The error distribution suggests that augmentation transformations, particularly aggressive colour jitter (±20\% brightness/contrast/saturation), introduced ambiguity that blurred quality boundaries. Reducing brightness on Good fruit may have made pristine samples appear mildly degraded, whilst increasing brightness on Rotten fruit may have masked decay patterns. Similarly, rotation and flipping might have obscured or emphasised specific surface defects critical for distinguishing Mild from adjacent categories. The concentration of errors at the Mild-adjacent boundaries indicates that borderline quality assessment proves highly sensitive to augmentation-induced variations.
+
+The fruit type confusion matrix displays perfect diagonal structure with zero off-diagonal elements, confirming 100\% classification accuracy with no confusion between any fruit types. This perfect performance validates exceptional robustness of fruit identification to augmentation transformations.
+
+\section{ROC Curve Analysis and AUC Scores}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario13_quality_roc_test.png}
+\caption{Quality Task Test ROC Curves}
+\label{fig:scenario13_quality_roc_test}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario13_quality_roc_val.png}
+\caption{Quality Task Validation ROC Curves}
+\label{fig:scenario13_quality_roc_val}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario13_fruit_roc_test.png}
+\caption{Fruit Type Task Test ROC Curves}
+\label{fig:scenario13_fruit_roc_test}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario13_fruit_roc_val.png}
+\caption{Fruit Type Task Validation ROC Curves}
+\label{fig:scenario13_fruit_roc_val}
+\end{minipage}
+\end{figure}
+
+The quality task ROC curves demonstrate degraded but still strong discriminative capability under augmentation. The validation AUC of 0.9969 and test AUC of 0.9955 represent declines from baseline's perfect 1.0000, indicating that probability calibration suffered under augmentation. The ROC curves for quality classes show slight departure from the perfect upper-left corner, with curves passing through intermediate points before reaching optimal performance. This behaviour indicates that the model occasionally assigned lower confidence to correct quality predictions or higher confidence to incorrect predictions compared to baseline's perfect rank-ordering.
+
+The AUC decline, whilst statistically significant, remains above 0.995, indicating that the quality classification head still provides excellent probability estimates despite increased hard classification errors. The model maintains strong discriminative capability but with reduced confidence margin between correct and incorrect predictions for borderline samples affected by augmentation-induced feature distortions.
+
+The fruit type task ROC curves maintained perfect AUC = 1.0000 on both validation and test sets, exactly matching baseline performance. The curves track perfectly along the upper-left corner, confirming that fruit identification maintained optimal probability calibration and rank-ordering despite augmentation transformations.
+
+\section{Training History and Convergence Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/scenario13_training_history.png}
+\caption{Multi-Task Augmented Training History}
+\label{fig:scenario13_training}
+\end{figure}
+
+The training history for augmented multi-task learning reveals substantially different convergence dynamics compared to baseline, particularly for the quality task. The fruit type task maintained rapid convergence similar to baseline, achieving >99\% accuracy by epoch 3-4 and stabilising at perfect 100\% by epoch 5-6. This convergence speed matches baseline despite augmentation, confirming robust fruit identification even during training on distorted images.
+
+The quality task, conversely, showed notably slower and more volatile convergence. Training accuracy increased gradually over the first 20-25 epochs, reaching only 95-96\% by epoch 15 compared to baseline's >99\% by epoch 8. The training accuracy curve exhibited substantial epoch-to-epoch oscillation, particularly during epochs 5-25, reflecting the stochastic nature of augmentation where each epoch presents different transformed versions of training samples. Validation accuracy tracked training closely, occasionally matching or exceeding training performance, providing evidence against overfitting despite increased classification errors.
+
+The quality task eventually stabilised around 97-98\% validation accuracy by epoch 35-40, substantially below baseline's 99.89\%. The combined loss curve decreased more slowly than baseline, requiring 25-30 epochs to reach values that baseline achieved by epoch 12-15. The learning rate schedule triggered more frequent reductions compared to baseline, indicating that augmented training distribution created more plateau events requiring learning rate adjustment.
+
+The slower convergence and reduced final accuracy for quality classification whilst fruit type identification converged rapidly and perfectly suggests task-specific augmentation sensitivity. The quality task struggled to extract stable discriminative features from the constantly varying augmented training distribution, whilst the fruit type task learned robust fruit-defining features unaffected by geometric and photometric distortions.
+
+\section{Why Augmentation Degraded Quality Classification But Not Fruit Type Identification}
+
+Several factors explain the differential augmentation impact across tasks. First, feature robustness differs fundamentally between tasks. Fruit type identification depends on coarse-grained visual characteristics (overall shape, surface texture patterns, structural features) that remain recognisable under rotation, flipping, and moderate colour variations. Quality assessment, conversely, depends on fine-grained indicators (subtle discolouration, early-stage spotting, minor texture changes) that prove sensitive to photometric transformations, particularly colour jitter that directly alters the appearance of degradation-related colour shifts.
+
+Second, augmentation-induced ambiguity affected tasks asymmetrically. Aggressive colour jitter (±20\% brightness/contrast/saturation) may have genuinely transformed samples across quality boundaries whilst preserving fruit identity. Reducing brightness on Good fruit might make it appear Mildly degraded, or increasing brightness on Rotten fruit might mask decay indicators, creating label noise for quality classification. Fruit type identity, conversely, remains unaffected by such transformations: a brightened banana remains a banana, a rotated tomato remains a tomato.
+
+Third, task complexity and ceiling effects played a role. The fruit type task already achieved perfect 100\% baseline accuracy with zero room for improvement, indicating that inter-fruit visual differences are sufficiently pronounced that no augmentation-induced variation could introduce confusion. The quality task, starting from 99.89\% baseline, had minimal improvement potential but substantial degradation risk if augmentation introduced classification difficulty.
+
+\section{Conclusion}
+
+Multi-task Scenario 3 revealed differential augmentation impact, with quality classification experiencing substantial degradation (validation 97.06\%, test 96.59\%, down approximately 3\% from baseline) whilst fruit type identification maintained perfect 100\% accuracy. The results demonstrate task-specific augmentation sensitivity, with fine-grained quality discrimination proving vulnerable to photometric transformations whilst coarse-grained fruit identification remained robust.
+
+The perfect fruit type performance under augmentation validates the robustness of inter-fruit visual differences to geometric distortions and colour variations. The quality classification degradation, particularly the severe decline in Mild class performance (F1-score dropping to 93-94\%), indicates that intermediate-quality assessment depends on subtle features sensitive to augmentation-induced variations.
+
+From a practical standpoint, these findings suggest that augmentation strategies for multi-task fruit classification should be task-aware, potentially applying gentler transformations or task-specific augmentation policies that preserve fine-grained quality indicators whilst introducing geometric and photometric variations sufficient for improving fruit identification robustness. The current aggressive augmentation (±20\% colour jitter) proved too severe for quality assessment whilst unnecessary for fruit identification that already achieved perfect accuracy.

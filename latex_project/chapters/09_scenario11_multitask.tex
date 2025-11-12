@@ -1,0 +1,219 @@
+\chapter{SCENARIO 1: MULTI-TASK BASELINE - NORMAL COLOURED IMAGES}
+
+\section{Introduction}
+
+Scenario 1 forms the baseline performance for multi-task learning on standard RGB colour images. This scenario represents a key departure from the single-task strategy in Part A by setting up a dual-objective architecture that simultaneously predicts both fruit type, 11 classes, and quality level, 3 classes: Good, Mild, Rotten. The multi-task formulation reflects the practical reality that real-world fruit classification systems often need to perform identification and quality assessment operations simultaneously when deployed within agricultural supply chains.
+
+The main motivation behind multi-task learning lies in efficiency considerations related to both data utilisation and computational resources. Multi-task architecture, instead of training different dedicated models on each particular task, shares the same convolutional backbone for both objectives; it potentially lowers the parameter count, possibly reduces inference time, and benefits from shared visual features useful for both classification goals. This approach tests whether low-level features extracted during fruit type identification, such as colour patterns, surface texture, and overall shape, can simultaneously inform quality assessment decisions.
+
+\section{Configuration}
+
+Table 15 presents the complete configuration for multi-task Scenario 1. The configuration mirrors the single-task baseline (Scenario 1 from Part A) in all parameters except for the architectural modification to support dual classification heads.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+Parameter              & Value                   \\
+\midrule
+Model Architecture     & Multi-Task Simple CNN   \\
+Input Channels         & 3 (RGB)                 \\
+Image Size             & 224 × 224               \\
+Batch Size             & 32                      \\
+Epochs                 & 50                      \\
+Learning Rate          & 0.001                   \\
+Optimizer              & Adam                    \\
+Weight Decay           & 0.0001                  \\
+Scheduler              & ReduceLROnPlateau       \\
+Patience               & 10 epochs               \\
+Gradient Clipping      & 1.0                     \\
+Warmup Epochs          & 5                       \\
+Mixed Precision        & Enabled                 \\
+Class Weights          & Enabled (auto-computed) \\
+Quality Task Weight    & 1.0                     \\
+Fruit Type Task Weight & 1.0                     \\
+Augmentation           & Disabled                \\
+Grayscale              & Disabled                \\
+Random Seed            & 42                      \\
+\bottomrule
+\end{tabular}
+\caption{Configuration parameters for multi-task Scenario 1 baseline}
+\label{tab:scenario11_config}
+\end{table}
+
+The multi-task architecture employs equal loss weighting (both set to 1.0) for quality and fruit type objectives, allowing the optimiser to balance gradients naturally based on task difficulty rather than imposing artificial prioritisation. This configuration provides the foundation against which subsequent multi-task scenarios can be compared.
+
+\section{Results and Analysis}
+
+\subsection{Overall Performance Metrics}
+
+The multi-task baseline achieved exceptional performance across both classification objectives, demonstrating that shared feature representations can effectively serve dual predictive goals. Table 16 presents comprehensive performance metrics separated by task, revealing near-perfect accuracy on fruit type identification and excellent quality classification performance.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llccc}
+\toprule
+Task           & Metric    & Validation & Test    & Δ from Single-Task S1 \\
+\midrule
+\textbf{Quality}    & Accuracy  & 99.89\%     & 99.89\%  & +0.05\%                \\
+                    & Precision & 99.89\%     & 99.89\%  & +0.05\%                \\
+                    & Recall    & 99.89\%     & 99.89\%  & +0.10\%                \\
+                    & F1-Score  & 99.89\%     & 99.89\%  & +0.05\%                \\
+                    & AUC       & 1.0000     & 1.0000  & 0.0000                \\
+\textbf{Fruit Type} & Accuracy  & 100.00\%    & 100.00\% & N/A                   \\
+                    & Precision & 100.00\%    & 100.00\% & N/A                   \\
+                    & Recall    & 100.00\%    & 100.00\% & N/A                   \\
+                    & F1-Score  & 100.00\%    & 100.00\% & N/A                   \\
+                    & AUC       & 1.0000     & 1.0000  & N/A                   \\
+\bottomrule
+\end{tabular}
+\caption{Overall performance metrics for multi-task Scenario 1}
+\label{tab:scenario11_metrics}
+\end{table}
+
+The performance on the fruit type classification task was perfect, 100\% according to all metrics, both on the validation and test sets, with zero misclassifications among the 1873 validation and 939 test samples. This perfect performance indicates that the 11 fruit types in the dataset exhibit highly distinctive visual characteristics that are easily discriminated by the convolutional backbone, even when the network must attend to quality assessment features simultaneously.
+
+The quality classification task achieved 99.89\% validation accuracy and 99.89\% test accuracy, marginally better than the performance of the single-task baseline from Part A, which achieved 99.84\% and 99.79\%, respectively. This modest absolute improvement in performance (+0.05\% validation, +0.10\% test) contradicts the commonly held belief that multi-task learning necessarily results in a trade-off of performance between the different objectives. The validation set yielded only 2 misclassifications out of 1873 samples, and the test set yielded only 1 error out of 939 samples. The near-perfect AUC scores, 1.0000 for both tasks on both sets, signify optimal discriminative capability across all decision thresholds.
+
+Such consistency among validation and test performance for both tasks---specifically, identical precision of 99.89\% for quality and 100\% for fruit type---demonstrates robust generalisation with no overfitting, suggesting that the shared convolutional backbone has learned proper feature representations rather than memorising training examples. The fact that quality classification performance slightly exceeded single-task performance while achieving perfect fruit type classification suggests the occurrence of positive transfer learning effects where fruit-specific features---colour distribution and surface texture patterns specific to each fruit variety---may have contributed extra context that refined quality discrimination.
+
+\subsection{Per-Class Performance Analysis}
+
+Table 17 presents detailed per-class metrics for both tasks, revealing how the multi-task architecture balanced performance across quality categories and fruit types.
+
+\begin{table}[H]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccc}
+\toprule
+Task           & Class       & Split      & Precision & Recall  & F1-Score \\
+\midrule
+\textbf{Quality}    & Good        & Validation & 100.00\%   & 99.83\%  & 99.92\%   \\
+                    &             & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+                    & Mild        & Validation & 99.79\%    & 99.79\%  & 99.79\%   \\
+                    &             & Test       & 99.58\%    & 100.00\% & 99.79\%   \\
+                    & Rotten      & Validation & 99.88\%    & 100.00\% & 99.94\%   \\
+                    &             & Test       & 100.00\%   & 99.75\%  & 99.88\%   \\
+\midrule
+\textbf{Fruit Type} & BananaDB    & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &             & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+                    & CucumberQ   & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &             & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+                    & GrapeQ      & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &             & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+                    & KakiQ       & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &             & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+                    & PapayaQ     & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &             & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+                    & PeachQ      & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &             & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+                    & PearQ       & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &             & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+                    & PepperQ     & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &             & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+                    & StrawberryQ & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &             & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+                    & WatermeloQ  & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &             & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+                    & tomatoQ     & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &             & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Per-class performance metrics for multi-task Scenario 1}
+\label{tab:scenario11_perclass}
+\end{table}
+
+The quality classification results show balanced performance across all three categories. The ``Good'' class achieved perfect 100\% precision on both validation and test sets, with 99.83\% recall on validation and perfect 100\% recall on test. The ``Mild'' class showed 99.79\% precision and recall on validation, with slightly lower 99.58\% precision but perfect 100\% recall on test. The ``Rotten'' class demonstrated strong performance with 99.88\% precision and perfect 100\% recall on validation, inverting to perfect 100\% precision and 99.75\% recall on test. This class-balanced performance indicates that the multi-task model does not exhibit systematic bias towards any particular quality level and handles both quality extremes (Good and Rotten) as well as the intermediate Mild category with high reliability.
+
+The results of the fruit type classification demonstrate perfect 100\% across all metrics for all 11 fruit types on both validation and test sets. This comprehensive perfect performance across categories ranging from frequently represented fruits (tomatoQ with 1990 images) to sparsely represented fruits (StrawberryQ with only 216 images) suggests that inter-fruit visual differences are sufficiently pronounced that class imbalance does not degrade classification capability. The shared convolutional backbone successfully learned discriminative features for each fruit type without confusion, even for visually similar categories that might share colour or texture characteristics.
+
+\section{Confusion Matrix Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/scenario11_quality_confusion_val.png}
+\caption{Quality Task Validation Confusion Matrix}
+\label{fig:scenario11_quality_confusion}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/scenario11_fruit_confusion_val.png}
+\caption{Fruit Type Task Validation Confusion Matrix}
+\label{fig:scenario11_fruit_confusion}
+\end{figure}
+
+Quality task validation confusion matrix shows 2 misclassifications out of 1873 samples. One ``Good'' sample was classified as ``Mild,'' while one ``Mild'' sample got classified as ``Rotten.'' Critically, there were no errors between the quality extremes: no ``Good'' samples were misclassified as ``Rotten'' and vice versa. This pattern of error indicates that the model maintains clear discrimination at quality boundaries while facing minor difficulty only with samples with transitional characteristics.
+
+Compared to the single-task baseline from Part A, which generated 3 validation errors (all ``Mild'' misclassified as ``Rotten''), the multi-task model performs better, with one fewer error and a more balanced distribution of errors across quality boundaries rather than accumulating the errors at the Mild-Rotten boundary. This suggests that fruit-specific contextual information contributed by the fruit type classification head might have helped fine-tune quality discrimination by allowing the model to apply fruit-specific quality criteria rather than generic quality features. The confusion matrix on fruit type shows perfect diagonal structure with zero off-diagonal elements; this confirms 100\% classification accuracy with no confusion between any pair of fruit types. This perfect performance validates the multi-task architecture's ability to maintain excellent fruit identification capability while doing quality assessment, hence demonstrating that the shared backbone does not suffer from task interference where one objective degrades the performance of another.
+
+\section{ROC Curve Analysis and AUC Scores}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario11_quality_roc_test.png}
+\caption{Quality Task Test ROC Curves}
+\label{fig:scenario11_quality_roc_test}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario11_quality_roc_val.png}
+\caption{Quality Task Validation ROC Curves}
+\label{fig:scenario11_quality_roc_val}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario11_fruit_roc_test.png}
+\caption{Fruit Type Task Test ROC Curves}
+\label{fig:scenario11_fruit_roc_test}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario11_fruit_roc_val.png}
+\caption{Fruit Type Task Validation ROC Curves}
+\label{fig:scenario11_fruit_roc_val}
+\end{minipage}
+\end{figure}
+
+It follows that the quality task ROC curves have excellent discriminative capability in terms of multi-task quality classification. All three classes of quality achieve perfect or near-perfect AUC scores: Validation AUC of 1.0000 for all classes, micro-average AUC of 1.0000; Test AUC of 1.0000 for all classes, micro-average AUC of 1.0000. All quality class ROC curves track along the upper-left corner, the point [0,1]; this means the model realises a maximum true positive rate while maintaining a minimum false positive rate across all decision thresholds.
+
+This ideal behaviour confirms that the quality classification head produces well-calibrated probability predictions with clear separation between correct and incorrect classifications. If the model assigns high confidence to a quality prediction, then that prediction is correct with extremely high probability. The perfect AUC scores are consistent with those of the single-task baseline, indicating that adding the fruit type classification objective did not degrade the quality head's probability calibration or discriminative power.
+
+ROC curves on the fruit type task demonstrate perfect discriminative capability, with all 11 fruit types achieving AUC = 1.0000 on both validation and test sets. For all fruit types, the curves track perfectly along the upper-left corner, confirming that the model never assigns higher confidence to an incorrect fruit type than to the correct type, across any probability threshold. This perfect rank ordering validates the fruit type classification head's ability to produce maximally informative probability distributions over fruit categories.
+
+\section{Training History and Convergence Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/scenario11_training_history.png}
+\caption{Multi-Task Training History}
+\label{fig:scenario11_training}
+\end{figure}
+
+The training history for the multi-task baseline provides critical insight into how the dual-objective optimisation converged and whether task interference affected learning dynamics compared to single-task training. The multi-panel training curves track loss and accuracy for both quality and fruit type tasks simultaneously, along with the combined total loss and learning rate schedule.
+
+The model converged rapidly for both tasks within the first 10-15 epochs. The fruit type task achieved >99\% accuracy by epoch 3 and stabilised at perfect 100\% accuracy by epoch 5, maintaining this performance throughout remaining epochs. This extremely rapid convergence for fruit type classification confirms that inter-fruit visual differences are highly distinctive and easily learned by the convolutional backbone even during the warmup phase.
+
+The quality task showed slightly slower but still impressive convergence, achieving >99\% accuracy by epoch 8 and stabilising above 99.8\% by epoch 12. Both training and validation accuracy curves for quality classification tracked each other closely throughout training, with validation occasionally matching or slightly exceeding training accuracy. This pattern indicates genuine learning rather than memorisation, with the model generalising well to held-out validation data without overfitting.
+
+The combined loss curve (sum of quality loss and fruit type loss weighted by their respective task weights) decreased smoothly from approximately 0.5 to near-zero by epoch 15, following a stable trajectory without oscillations. The learning rate schedule shows two reduction events triggered by the ReduceLROnPlateau scheduler around epochs 18 and 32, dropping from the initial 0.001 to approximately 5 × 10⁻⁴ and then 2.5 × 10⁻⁴. These adaptive reductions enabled progressive refinement of decision boundaries for both tasks.
+
+Comparing convergence dynamics to the single-task baseline from Part A reveals that multi-task training achieved comparable or faster convergence despite optimising two objectives simultaneously. The single-task model achieved >99\% accuracy by epoch 5, whilst the multi-task model achieved >99\% fruit type accuracy by epoch 3 and >99\% quality accuracy by epoch 8. This suggests that positive transfer between tasks may have accelerated learning, with fruit-specific features providing useful inductive bias for quality assessment and vice versa.
+
+\section{Conclusion}
+
+Multi-task Scenario 1 establishes a robust baseline for simultaneous fruit type and quality classification, achieving 99.89\% quality accuracy and perfect 100\% fruit type accuracy on both validation and test sets. The results provide compelling evidence that multi-task learning offers substantial benefits for fruit classification applications without sacrificing performance on either task.
+
+The perfect fruit type classification demonstrates that the 11 fruit categories in the FruQ dataset exhibit highly discriminative visual features that enable error-free identification even when the network must simultaneously attend to quality assessment features. The quality classification performance marginally exceeded the single-task baseline from Part A (+0.05\% validation, +0.10\% test), suggesting positive transfer learning effects where fruit-specific contextual information refined quality discrimination.
+
+From an architectural efficiency perspective, the multi-task model achieves comparable parameter efficiency to two separate single-task models whilst providing both outputs in a single forward pass. The shared convolutional backbone (32→64→128→256 filter progression) extracts hierarchical features that serve both classification heads effectively, with task-specific fully connected layers (256 units each) providing sufficient capacity for final decision-making.
+
+The systematic evaluation methodology applied to this baseline scenario establishes a comprehensive framework for assessing multi-task performance that will be applied consistently across subsequent scenarios to evaluate how input modifications affect both tasks independently and jointly.

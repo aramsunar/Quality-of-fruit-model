@@ -1,0 +1,105 @@
+\chapter{SCENARIO 2: GRAYSCALE IMAGES}
+
+\section{Introduction}
+
+In scenario 2 we explore the role of colour information images by converting all input images to grayscale. This input manipulation addresses a fundamental: is colour information essential for accurate classification (in fruit quality classification in this case), or can texture and shape features alone achieve comparable performance? By maintaining identical model architecture, training procedures and hyperparameters while only modifying the input representation from RGB (3 channels) to grayscale (1 channel), this scenario provides a controlled comparison to establish the necessity of colour features.
+
+\section{Configuration}
+
+Table~\ref{tab:scenario2_config} presents the configuration for Scenario 2. The configuration differs from Scenario 1 in only two parameters: INPUT\_CHANNELS (reduced from 3 to 1) and GRAYSCALE (changed from false to true). All other parameters remain identical to ensure a fair comparison.
+
+\begin{table}[h]
+\centering
+\caption{Configuration parameters for Scenario 2}
+\label{tab:scenario2_config}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\ \midrule
+Model Architecture & Simple CNN \\
+Input Channels & \textbf{1 (Grayscale)} \\
+Image Size & $224 \times 224$ \\
+Batch Size & 32 \\
+Epochs & 50 \\
+Learning Rate & 0.001 \\
+Optimizer & Adam \\
+Weight Decay & 0.0001 \\
+Scheduler & ReduceLROnPlateau \\
+Patience & 10 epochs \\
+Gradient Clipping & 1.0 \\
+Warmup Epochs & 5 \\
+Mixed Precision & Enabled \\
+Class Weights & Enabled (auto-computed) \\
+Augmentation & Disabled \\
+Grayscale & \textbf{Enabled} \\
+Random Seed & 42 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{Results and Analysis}
+
+Scenario 2 achieved remarkable performance that challenges conventional assumptions about the necessity of colour information for fruit quality assessment. The grayscale-based model achieved 99.84\% validation accuracy and 100\% test accuracy, demonstrating that texture, shape and grayscale intensity features contain sufficient discriminative information for this task.
+
+The test set results are particularly striking: 100\% accuracy across all metrics, representing a perfect classification of all 939 test samples. This performance actually surpasses Scenario 1's already exceptional 99.79\% test accuracy by 0.21 percentage points.
+
+\subsection{Confusion Matrix Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/scenario2_confusion_matrix_val.png}
+\caption{Validation confusion matrix}
+\label{fig:scenario2_confusion}
+\end{figure}
+
+\subsection{ROC Curve Analysis}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario2_roc_test.png}
+\caption{ROC test}
+\label{fig:scenario2_roc_test}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario2_roc_val.png}
+\caption{ROC validation}
+\label{fig:scenario2_roc_val}
+\end{minipage}
+\end{figure}
+
+\subsection{Training History}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/scenario2_training_history.png}
+\caption{Training history}
+\label{fig:scenario2_training}
+\end{figure}
+
+\section{Comparative Analysis with Scenario 1 (RGB Baseline)}
+
+The performance comparison between grayscale (Scenario 2) and RGB (Scenario 1) processing reveals surprising findings that challenge conventional assumptions about colour's role in fruit quality assessment.
+
+\begin{table}[h]
+\centering
+\caption{Performance comparison between RGB (Scenario 1) and Grayscale (Scenario 2)}
+\label{tab:scenario2_comparison}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Metric} & \textbf{S1 (RGB) Val} & \textbf{S2 (Gray) Val} & \textbf{S1 (RGB) Test} & \textbf{S2 (Gray) Test} \\ \midrule
+Accuracy & 99.84\% & 99.84\% & 99.79\% & 100.00\% \\
+Precision & 99.84\% & 99.84\% & 99.79\% & 100.00\% \\
+Recall & 99.84\% & 99.84\% & 99.79\% & 100.00\% \\
+F1-Score & 99.84\% & 99.84\% & 99.79\% & 100.00\% \\
+Val Errors & 3 / 1872 & 3 / 1872 & 2 / 939 & 0 / 939 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+The removal of colour information resulted in near-identical performance on validation data and actually improved test performance (from 99.79\% to 100\%). This contradicts the intuitive expectation that colour would be essential for quality assessment.
+
+\section{Conclusion}
+
+Scenario 2 provides compelling evidence that colour information, while intuitively important, is not essential for achieving excellent fruit quality classification performance. The grayscale-based model achieved 99.84\% validation accuracy and 100\% test accuracy, demonstrating that texture, shape and grayscale intensity features contain sufficient discriminative information for this task.
+
+From a practical standpoint, these results suggest that grayscale-based systems could be deployed for fruit quality assessment with confidence, offering computational and hardware efficiency benefits without sacrificing accuracy. The one additional validation error in the intermediate ``Mild'' quality category represents an acceptable trade-off for applications where efficiency is prioritised. But the dataset-specific nature of these findings should be noted that different fruit types or quality assessment scenarios might show larger performance gaps.

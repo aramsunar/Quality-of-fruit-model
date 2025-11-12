@@ -1,0 +1,217 @@
+\chapter[SCENARIO 2: MULTI-TASK GRAYSCALE IMAGES]{SCENARIO 2: MULTI-TASK\\GRAYSCALE IMAGES}
+
+\section{Introduction}
+
+Scenario 2 explores the role of colour information in multi-task fruit classification by converting all input images to grayscale whilst maintaining the dual-objective architecture from Scenario 1. This experimental manipulation addresses fundamental questions about feature dependencies across tasks: is colour information equally critical for fruit type identification and quality assessment, or might one task prove more colour-dependent than the other?
+
+The motivation for this scenario stems from theoretical considerations about what visual features drive each classification task. Fruit type identification might reasonably depend heavily on colour, as distinctive colour patterns (e.g., yellow bananas, red tomatoes, purple grapes) provide immediately recognisable discriminative features. Quality assessment, conversely, might rely more on texture patterns such as surface smoothness, wrinkle formation, and spotting that can be captured in grayscale intensity variations. If these hypotheses hold, we would expect grayscale conversion to degrade fruit type classification more severely than quality classification, potentially revealing task-specific feature dependencies.
+
+From a practical standpoint, understanding colour dependency has implications for deployment scenarios where imaging hardware constraints or lighting conditions might necessitate grayscale or single-channel infrared imaging. If grayscale representations prove sufficient for one or both tasks, simplified imaging systems could be deployed without sacrificing classification accuracy whilst benefiting from reduced data bandwidth and processing requirements.
+
+\section{Configuration}
+
+Table 18 presents the configuration for multi-task Scenario 2. The configuration differs from multi-task Scenario 1 in only two parameters: INPUT\_CHANNELS (reduced from 3 to 1) and GRAYSCALE (changed from disabled to enabled). All other parameters including learning rate, optimiser settings, and task loss weights remain identical to ensure fair comparison.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+Parameter              & Value                   \\
+\midrule
+Model Architecture     & Multi-Task Simple CNN   \\
+Input Channels         & \textbf{1 (Grayscale)}  \\
+Image Size             & 224 × 224               \\
+Batch Size             & 32                      \\
+Epochs                 & 50                      \\
+Learning Rate          & 0.001                   \\
+Optimizer              & Adam                    \\
+Weight Decay           & 0.0001                  \\
+Scheduler              & ReduceLROnPlateau       \\
+Patience               & 10 epochs               \\
+Gradient Clipping      & 1.0                     \\
+Warmup Epochs          & 5                       \\
+Mixed Precision        & Enabled                 \\
+Class Weights          & Enabled (auto-computed) \\
+Quality Task Weight    & 1.0                     \\
+Fruit Type Task Weight & 1.0                     \\
+Augmentation           & Disabled                \\
+Grayscale              & \textbf{Enabled}        \\
+Random Seed            & 42                      \\
+\bottomrule
+\end{tabular}
+\caption{Configuration parameters for multi-task Scenario 2}
+\label{tab:scenario12_config}
+\end{table}
+
+\section{Results and Analysis}
+
+\subsection{Overall Performance Metrics}
+
+Scenario 2 achieved remarkable performance that challenges conventional assumptions about colour's role in fruit classification. Table 19 presents comprehensive performance metrics, revealing that grayscale images maintained near-perfect accuracy for both tasks with only marginal differences from the RGB baseline.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llccc}
+\toprule
+Task           & Metric    & Validation & Test    & Δ from MT S1   \\
+\midrule
+\textbf{Quality}    & Accuracy  & 99.95\%     & 99.89\%  & +0.06\% / 0.00\% \\
+                    & Precision & 99.95\%     & 99.89\%  & +0.06\% / 0.00\% \\
+                    & Recall    & 99.95\%     & 99.89\%  & +0.06\% / 0.00\% \\
+                    & F1-Score  & 99.95\%     & 99.89\%  & +0.06\% / 0.00\% \\
+                    & AUC       & 1.0000     & 1.0000  & 0.0000         \\
+\textbf{Fruit Type} & Accuracy  & 100.00\%    & 100.00\% & 0.00\%          \\
+                    & Precision & 100.00\%    & 100.00\% & 0.00\%          \\
+                    & Recall    & 100.00\%    & 100.00\% & 0.00\%          \\
+                    & F1-Score  & 100.00\%    & 100.00\% & 0.00\%          \\
+                    & AUC       & 1.0000     & 1.0000  & 0.0000         \\
+\bottomrule
+\end{tabular}
+\caption{Overall performance metrics for multi-task Scenario 2}
+\label{tab:scenario12_metrics}
+\end{table}
+
+The fruit type classification task maintained perfect 100\% accuracy across all metrics on both validation and test sets, with zero errors among 1873 validation samples and 939 test samples. This perfect performance exactly matches the RGB baseline, demonstrating that colour information is not essential for fruit type identification in this dataset. The result is striking given intuitive expectations that colour would be critical for distinguishing between fruits. This finding suggests that the fruit types in the FruQ dataset exhibit distinctive grayscale signatures, texture patterns, and shape characteristics that enable perfect discrimination without colour information.
+
+The quality classification task achieved 99.95\% validation accuracy and 99.89\% test accuracy, representing a marginal improvement over the RGB baseline on validation (+0.06\%) whilst matching baseline performance on test (0.00\%). The validation set produced only 1 misclassification among 1873 samples (compared to 2 errors in RGB baseline), whilst the test set produced 1 error among 939 samples (identical to RGB baseline). The near-perfect AUC scores (1.0000 for both tasks on both sets) remain identical to baseline, indicating preserved discriminative capability across all decision thresholds.
+
+The consistency between validation and test performance for both tasks demonstrates robust generalisation. The fact that grayscale conversion not only maintained but slightly improved quality classification accuracy on validation data whilst preserving perfect fruit type classification challenges the assumption that RGB colour channels provide essential information for these tasks. Instead, the results suggest that texture, shape, and grayscale intensity patterns contain sufficient discriminative information for both fruit identification and quality assessment.
+
+\subsection{Per-Class Performance Analysis}
+
+Table 20 presents detailed per-class metrics for both tasks under grayscale processing, revealing how removal of colour information affected classification performance across quality categories and fruit types.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llcccc}
+\toprule
+Task           & Class           & Split      & Precision & Recall  & F1-Score \\
+\midrule
+\textbf{Quality}    & Good            & Validation & 100.00\%   & 99.83\%  & 99.92\%   \\
+                    &                 & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+                    & Mild            & Validation & 99.79\%    & 100.00\% & 99.89\%   \\
+                    &                 & Test       & 99.58\%    & 100.00\% & 99.79\%   \\
+                    & Rotten          & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &                 & Test       & 100.00\%   & 99.75\%  & 99.88\%   \\
+\textbf{Fruit Type} & (All 11 fruits) & Validation & 100.00\%   & 100.00\% & 100.00\%  \\
+                    &                 & Test       & 100.00\%   & 100.00\% & 100.00\%  \\
+\bottomrule
+\end{tabular}
+\caption{Per-class performance metrics for multi-task Scenario 2}
+\label{tab:scenario12_perclass}
+\end{table}
+
+The quality classification results show excellent balanced performance across all three categories. The ``Good'' class achieved perfect 100\% precision on both validation and test sets, with 99.83\% recall on validation and perfect 100\% recall on test (matching RGB baseline exactly). The ``Mild'' class showed 99.79\% precision with perfect 100\% recall on validation, and 99.58\% precision with perfect 100\% recall on test (identical to RGB baseline). The ``Rotten'' class demonstrated perfect 100\% precision and recall on validation (improved from RGB baseline's 99.88\% precision), and perfect 100\% precision with 99.75\% recall on test (matching RGB baseline).
+
+Notably, the validation set ``Rotten'' class performance improved under grayscale processing, achieving perfect 100\% metrics compared to RGB baseline's 99.88\% precision. This counterintuitive improvement suggests that colour information may occasionally introduce confounding factors for rotten fruit detection, with grayscale intensity patterns providing more reliable indicators of severe degradation than colour shifts that might vary across fruit types or lighting conditions.
+
+The fruit type classification results maintained perfect 100\% across all metrics for all 11 fruit types on both validation and test sets, exactly matching RGB baseline performance. This comprehensive perfect performance across diverse fruit categories, including fruits that humans would typically distinguish primarily by colour (e.g., bananas versus tomatoes), indicates that grayscale features such as surface texture, shape contours, and intensity distribution patterns enable flawless fruit identification without colour information.
+
+\section{Confusion Matrix Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/scenario12_quality_confusion_val.png}
+\caption{Quality Task Validation Confusion Matrix}
+\label{fig:scenario12_quality_confusion}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/scenario12_fruit_confusion_val.png}
+\caption{Fruit Type Task Validation Confusion Matrix}
+\label{fig:scenario12_fruit_confusion}
+\end{figure}
+
+The quality task validation confusion matrix reveals 1 misclassification among 1873 samples: one ``Good'' sample was classified as ``Mild.'' Critically, zero errors occurred at the Mild-Rotten boundary, which had been the primary error location in previous scenarios. The Rotten class achieved perfect classification with zero errors. This represents an improvement over the RGB baseline (which produced 2 errors: 1 Good→Mild and 1 Mild→Rotten), with the grayscale model eliminating the Mild-Rotten boundary confusion entirely.
+
+The error pattern suggests that without colour information, the model encountered slight difficulty distinguishing high-quality fruit from fruit showing very early degradation (Good versus Mild), but maintained perfect discrimination between more clearly differentiated quality levels. The complete elimination of Mild-Rotten confusion under grayscale processing is particularly interesting, suggesting that colour variations may have introduced ambiguity for distinguishing intermediate from severe degradation, whilst grayscale texture patterns provide more reliable indicators of advanced decay.
+
+The fruit type confusion matrix displays perfect diagonal structure with zero off-diagonal elements, confirming 100\% classification accuracy with no confusion between any pair of fruit types. This perfect performance exactly matches the RGB baseline, validating that the 11 fruit types in the dataset exhibit grayscale-distinguishable characteristics that enable error-free identification without colour information.
+
+\section{ROC Curve Analysis and AUC Scores}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario12_quality_roc_test.png}
+\caption{Quality Task Test ROC Curves}
+\label{fig:scenario12_quality_roc_test}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario12_quality_roc_val.png}
+\caption{Quality Task Validation ROC Curves}
+\label{fig:scenario12_quality_roc_val}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario12_fruit_roc_test.png}
+\caption{Fruit Type Task Test ROC Curves}
+\label{fig:scenario12_fruit_roc_test}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario12_fruit_roc_val.png}
+\caption{Fruit Type Task Validation ROC Curves}
+\label{fig:scenario12_fruit_roc_val}
+\end{minipage}
+\end{figure}
+
+The ROC curves of quality tasks under grayscale processing are excellent in their discriminative capability: the validation AUC for all classes was 1.0000, the micro-average AUC was 1.0000, and the test AUC was 1.0000 across all classes, with a micro-average AUC of 1.0000. ROC curves across all quality classes track at the upper-left corner---point [0,1]---indicating the highest true positive rate while maintaining the lowest false positive rate across all decision thresholds.
+
+These perfect AUC scores exactly match the RGB baseline, indicating that grayscale conversion preserved the probability calibration and discriminative power of the quality classification head. Indeed, the model achieves the optimal rank ordering of the predictions across all probability thresholds, assigning always higher confidence to the correct quality classification compared to any incorrect one for each sample.
+
+The fruit type task ROC curves similarly maintain perfect discriminative capability under grayscale processing, with all 11 fruit types achieving AUC = 1.0000 on both validation and test sets. The curves for all fruit types track perfectly along the upper-left corner, confirming that the model assigns maximum confidence to correct fruit types across any probability threshold. This perfect performance exactly matches the RGB baseline, validating that grayscale features provide sufficient information for maximally confident fruit identification.
+
+\section{Training History and Convergence Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/scenario12_training_history.png}
+\caption{Multi-Task Grayscale Training History}
+\label{fig:scenario12_training}
+\end{figure}
+
+The training history for grayscale multi-task learning reveals convergence dynamics comparable to the RGB baseline, with both tasks achieving high accuracy rapidly despite the removal of colour information. The fruit type task converged extremely rapidly, achieving >99\% accuracy by epoch 2-3 and stabilising at perfect 100\% accuracy by epoch 4-5, matching or slightly exceeding the RGB baseline's convergence speed. This rapid convergence confirms that grayscale features alone provide sufficient discriminative information for fruit type identification without requiring colour channels.
+
+The quality task showed similarly impressive convergence, achieving >99\% accuracy by epoch 6-8 and stabilising above 99.8\% by epoch 10-12. Both training and validation accuracy curves tracked each other closely, with validation occasionally matching or exceeding training accuracy, indicating genuine generalisation rather than memorisation. The convergence trajectory closely matches the RGB baseline, suggesting that grayscale intensity patterns capture quality-relevant features as effectively as colour information.
+
+The combined loss curve decreased smoothly from approximately 0.45 to near-zero by epoch 12-15, following a stable trajectory comparable to RGB baseline. The learning rate schedule triggered reductions around epochs 16-20 and 30-35, enabling progressive refinement of decision boundaries. The training stability and convergence speed under grayscale processing match RGB baseline performance, demonstrating that removal of colour information did not introduce learning difficulties or require additional training iterations.
+
+\section{Comparative Analysis with Multi-Task Scenario 1 (RGB Baseline)}
+
+The performance comparison between multi-task grayscale (Scenario 2) and multi-task RGB (Scenario 1) processing reveals remarkable equivalence across both tasks, challenging assumptions about colour's necessity for fruit classification.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccc}
+\toprule
+Task       & Metric   & MT S1 (RGB) Val & MT S2 (Gray) Val & MT S1 (RGB) Test & MT S2 (Gray) Test \\
+\midrule
+Quality    & Accuracy & 99.89\%          & 99.95\%           & 99.89\%           & 99.89\%            \\
+Quality    & Errors   & 2 / 1873        & 1 / 1873         & 1 / 939          & 1 / 939           \\
+Fruit Type & Accuracy & 100.00\%         & 100.00\%          & 100.00\%          & 100.00\%           \\
+Fruit Type & Errors   & 0 / 1873        & 0 / 1873         & 0 / 939          & 0 / 939           \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Performance comparison between multi-task RGB and grayscale scenarios}
+\label{tab:scenario12_comparison}
+\end{table}
+
+The removal of colour information resulted in identical or marginally improved performance. Quality classification improved on validation (+0.06\%, reducing errors from 2 to 1) whilst matching baseline performance on test (identical 99.89\%). Fruit type classification maintained perfect 100\% accuracy with zero errors on both datasets. This equivalence contradicts intuitive expectations that colour would be essential for fruit identification.
+
+\section{Conclusion}
+
+Multi-task Scenario 2 demonstrates that grayscale images provide sufficient discriminative information for near-perfect fruit type and quality classification, achieving 99.95\% quality accuracy and perfect 100\% fruit type accuracy on validation, with 99.89\% quality and 100\% fruit type accuracy on test. The results challenge conventional assumptions about colour's necessity for fruit classification applications.
+
+The perfect fruit type classification under grayscale processing indicates that the 11 fruit categories exhibit distinctive texture, shape, and intensity patterns that enable error-free identification without colour channels. Quality classification performance matched or marginally exceeded RGB baseline, suggesting that texture-based quality indicators captured in grayscale intensity variations provide equally or more reliable assessment than colour-inclusive features.
+
+From a practical standpoint, these findings suggest that grayscale-based fruit classification systems could be deployed with confidence, offering computational efficiency benefits (reducing input dimensionality by 66\% from 3 channels to 1) without sacrificing classification accuracy. The dataset-specific nature of these findings should be noted, as different fruit varieties or quality assessment criteria might show larger performance gaps between RGB and grayscale processing.

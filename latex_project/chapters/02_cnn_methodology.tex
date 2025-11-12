@@ -1,0 +1,130 @@
+\chapter{CONVOLUTIONAL NEURAL NETWORK}
+
+As previously mentioned, this research project makes use of the Fruit Quality Database (FruQ-multi), which is a comprehensive image dataset specifically curated for assessing the produce quality across multiple fruit and vegetable varieties. The dataset comprises 9370 images spanning 11 distinct fruit types, each annotated according to quality level.
+
+The dataset encompasses eleven fruit and vegetable categories. Within each fruit category, images are further subdivided into three quality classes that represent progressive stages of degradation. The ``Good'' or ``Fresh'' category contains images of high quality produce exhibiting minimal surface defects and absence of visible decay. The ``Mild'' category represents moderate quality with minor blemishes, slight discoloration or early indicators of degradation but do not render the produce unsuitable. The ``Rotten'' category encompasses poor quality fruits displaying extensive bruising, mold growth or structural collapse that clearly indicate spoilage.
+
+The dataset distribution across fruit types and quality classes reveals substantial heterogeneity. Table~\ref{tab:dataset_distribution} presents the complete breakdown of image counts. It is important to take note of the imbalances both between fruit types and within quality categories, as this will have an effect on the later stages of using the data. Tomatoes constitute the most represented fruit with 1990 images, while strawberries comprise the smallest subset with only 216 images. Quality distribution within individual fruits also exhibits considerable variation. The PepperQ subset, for instance, contains 660 rotten images but only 48 good images. Conversely, PearQ maintains relatively balanced representation across good (504), mild (493), and rotten (100) categories. Notably, the StrawberryQ subset entirely lacks a ``Good'' class, containing only mild (119) and rotten (97) images.
+
+\begin{table}[h]
+\centering
+\caption{Distribution of images across fruit types and quality classes in the FruQ-multi dataset}
+\label{tab:dataset_distribution}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Fruit Type} & \textbf{Good/Fresh} & \textbf{Mild} & \textbf{Rotten} & \textbf{Total} \\ \midrule
+BananaDB & 179 & 96 & 337 & 612 \\
+CucumberQ & 250 & 345 & 116 & 711 \\
+GrapeQ & 227 & 194 & 288 & 709 \\
+KakiQ & 545 & 226 & 340 & 1111 \\
+PapayaQ & 130 & 250 & 413 & 793 \\
+PeachQ & 425 & 136 & 584 & 1145 \\
+PearQ & 504 & 493 & 100 & 1097 \\
+PepperQ & 48 & 24 & 660 & 732 \\
+StrawberryQ & 0 & 119 & 97 & 216 \\
+tomatoQ & 600 & 440 & 950 & 1990 \\
+WatermeloQ & 51 & 53 & 150 & 254 \\ \midrule
+\textbf{Total} & \textbf{3009} & \textbf{2376} & \textbf{3985} & \textbf{9370} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+Class imbalance, specifically in the subsets of PepperQ and StrawberryQ, has the risk of creating unwanted bias in models to over predict the majority classes if training is not adapted appropriately. This means a model can just predict the most common class for every input and will have a high accuracy in the end. The absence of certain quality categories in specific fruit types complicates multi-task learning where models must simultaneously predict fruit identity and quality. For example training on strawberries inherently provides no gradient signal for the ``Good'' category, potentially degrading the shared representation's ability to encode features associated with high quality.
+
+The dataset size variations across fruit types also affects learning dynamics. Tomatoes contribute for over 20\% of all images, potentially dominating learned features if the model inadvertently specialises for this overrepresented category. These considerations informed preprocessing decisions that are discussed in the subsequent sections.
+
+The data was partitioned by using stratification to split it, to maintain proportional representation of quality classes across training, validation and test sets. The training partition, comprising approximately 60-70\% of available images, provides the primary learning source from which models extract feature representations and optimise classification boundaries. The validation set, constituting roughly 15-20\% of data, serves dual purposes during model development. It is used to monitor training progress, to detect overfitting and informing hyperparameter selection. Critically, validation data influences model selection without directly participating in gradient updates, providing unbiased estimates of generalisation performance during iterative refinement. The test set, also approximately 15-20\% of images, remains isolated until final evaluation, ensuring that reported performance metrics reflect genuine generalisation to unseen data. This three way partition aligns with established machine learning practice for maintaining independence between model development and final assessment.
+
+Not all the images in the dataset are the same size. This is compensated for by standardising all the input before it is fed to the model. Original images arrive in PNG format with three colour channels (RGB), preserving spatial information at resolutions typically exceeding $224 \times 224$ pixels. Preprocessing pipelines normalise pixel intensities using ImageNet statistics, a conventional practice that stabilises gradient magnitudes during backpropagation and potentially improves convergence rates. Where scenario specific transformations occur like with grayscale conversion, augmentation or resolution adjustment, we apply the modifications on top of the baseline preprocessing. This ensures all inputs are standardised by the data preprocessing pipeline and then adapted for each scenario to ensure all models start with exactly the same input data.
+
+The original FruQ-multi dataset arrives organised hierarchically by fruit type, with quality subdivisions nested within each fruit category. Initial preprocessing begins with restructuring operations that merge fruit specific directories into quality based partitions, creating unified training, validation and test sets that contains random examples and samples of each fruit class. Within this dataset there are also naming inconsistencies. Some folders are named ``Fresh'' while others are named ``Good'' and there are also instances of ``mild'' versus ``Mild''. These naming inconsistencies must also be addressed and fixed during the preprocessing phase. The reorganisation employed a custom Python script that iterates through source directories, normalises inconsistent quality labels and redistributes images according to stratified sampling to maintain proportional class representation across splits.
+
+Filename conventions established during reorganisation preserve fruit type information through systematic prefixes appended to original filenames. An image originally located at ``BananaDB/Good/image001.png'' transforms into ``Good/BananaDB\_image001.png'' within the restructured training directory, encoding both quality and fruit identity in a format accessible to automated label extraction. The consistent application of this naming convention across all 9370 images facilitates programmatic label parsing through string manipulation operations that split filenames on underscore delimiters and map prefixes to integer class indices during data loading.
+
+The resize operations standardise the different native dimensions present in the original dataset into uniform $224 \times 224$ pixel representations.
+
+Through the operation of batch construction, the individual pre-processed images are assembled into mini batches of 32. The chosen batch size of 32 represents conventional practice in computer vision applications where memory constraints often preclude substantially larger batches given the spatial dimensionality of image tensors, a single $224 \times 224$ RGB image in 32-bit floating point format requires approximately 600KB, so a batch of 32 images consumes roughly 19MB before accounting for intermediate activations that multiply memory requirements during forward and backward passes. This is why a batch size of 32 remains optimal under varying computational availability in the group.
+
+For scenario 3, validation and test set preprocessing deliberately excludes augmentation operations applied during training, maintaining identical transformations across both partitions. This consistency proves critical for obtaining unbiased performance estimates, in applying different preprocessing to evaluation data than the model encountered during training would conflate two effects: genuine generalisation performance on held out examples versus sensitivity to preprocessing differences. The absence of augmentation in validation and test sets also reflects deployment scenarios where incoming images arrive without opportunities for online augmentation, making evaluation on unaugmented data more representative of real world performance.
+
+The convolutional neural network architecture used in this research follows hierarchical feature extraction, beginning with pixel level representations and progressively synthesising these into abstract feature vectors suitable for classification decisions.
+
+Input images enter the network as three dimensional tensors with shape (channels, height, width), specifically, $(3, 224, 224)$ for RGB inputs or $(1, 224, 224)$ for grayscale variants, where each pixel value resides in the range $[0, 1]$ after initial rescaling and then centres near zero following normalisation with ImageNet statistics. This numerical representation transforms photographic images into matrices of floating point values that can be used by convolutional operations.
+
+The primary architecture, implements a four block convolutional design where each block comprises a convolutional layer, batch normalisation, ReLU activation and max pooling operations that are sequentially executed.
+
+The first convolutional block processes input channels (three for RGB, one for grayscale) through 32 learned $3 \times 3$ filters, producing 32 feature maps that has the goal of capturing low level patterns such as edges, corners and simple textures. Batch normalisation follows, standardising activations across the mini-batch to stabilise training dynamics. The ReLU activation introduces nonlinearity by zeroing negative values while preserving positive activations unchanged. Max pooling with $2 \times 2$ windows and stride of 2 reduces spatial dimensions by half along each axis, selecting maximum activation values within local neighbourhoods.
+
+The subsequent convolutional blocks follow this pattern with increasing filter counts: block two employs 64 filters, block three uses 128 and block four applies 256, doubling channel depth at each stage while halving spatial dimensions. After four pooling operations, the $224 \times 224$ input reduces to $14 \times 14$ spatial dimensions ($224 / 2^4 = 14$), and with 256 channels, the resulting feature tensor contains $14 \times 14 \times 256 = 50176$ elements that encode hierarchical visual information extracted through the convolutional pipeline. These spatial features undergo flattening into a single-dimensional vector before entering fully connected layers that perform final classification decisions.
+
+The classification head comprises three fully connected layers that progressively reduce dimensionality from 50176 input features through intermediate representations of 512 and 256 dimensions before producing final logits for the three quality classes (Good, Mild, Rotten) or fourteen output dimensions for multi-task scenarios (the three quality classes plus eleven fruit types).
+
+Dropout layers with probability 0.5 appear between fully connected layers during training, randomly zeroing half of the activations. The network outputs raw logits rather than probabilities; during inference, these pass through a SoftMax function that exponentiates and normalises values to produce probability distributions over classes, though training employs CrossEntropyLoss that combines SoftMax and negative log likelihood for numerical stability.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/model_architecture.png}
+\caption{SimpleCNN architecture visualisation showing the sequential flow from input through four convolutional blocks with ReLU activations and max pooling, followed by fully connected layers that branch into three quality classification outputs (Fresh, Mild, Rotten)}
+\label{fig:model_architecture}
+\end{figure}
+
+Figure~\ref{fig:model_architecture} illustrates the complete data flow through the SimpleCNN architecture. The visualisation demonstrates how the initial RGB input ($3 \times 224 \times 224$) progressively transforms through hierarchical feature extraction stages. Each convolutional block applies learned filters to detect increasingly complex patterns, from low-level edges and textures in early layers to high-level semantic features in deeper layers. The alternating pattern of convolution, batch normalisation, ReLU activation and max pooling operations maintains stable gradient flow whilst systematically reducing spatial dimensions and increasing feature depth. Following the convolutional backbone, the flattened feature vector passes through two fully connected layers with dropout regularisation before final classification into the three quality categories. This architecture design balances model capacity with computational efficiency, achieving strong performance across all experimental scenarios.
+
+\begin{table}[h]
+\centering
+\caption{SimpleCNN Architecture: Hierarchical feature extraction through convolutional blocks}
+\label{tab:simplecnn_architecture}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llcc@{}}
+\toprule
+\textbf{Layer} & \textbf{Operation} & \textbf{Output Shape} & \textbf{Parameters} \\ \midrule
+Input & Normalised pixel values $[-2, 2]$ & $3 \times 224 \times 224$ & --- \\
+Conv Block 1 & Conv2d $(3 \rightarrow 32, 3 \times 3)$ + BN + ReLU + MaxPool$(2 \times 2)$ & $32 \times 112 \times 112$ & 928 \\
+Conv Block 2 & Conv2d $(32 \rightarrow 64, 3 \times 3)$ + BN + ReLU + MaxPool$(2 \times 2)$ & $64 \times 56 \times 56$ & 18560 \\
+Conv Block 3 & Conv2d $(64 \rightarrow 128, 3 \times 3)$ + BN + ReLU + MaxPool$(2 \times 2)$ & $128 \times 28 \times 28$ & 73984 \\
+Conv Block 4 & Conv2d $(128 \rightarrow 256, 3 \times 3)$ + BN + ReLU + MaxPool$(2 \times 2)$ & $256 \times 14 \times 14$ & 295424 \\
+Flatten & Reshape spatial dimensions & 50,176 & --- \\
+FC Layer 1 & Linear $(50,176 \rightarrow 512)$ + ReLU + Dropout(0.5) & 512 & 25690624 \\
+FC Layer 2 & Linear $(512 \rightarrow 256)$ + ReLU + Dropout(0.5) & 256 & 131328 \\
+Output Layer & Linear $(256 \rightarrow 3)$ [Quality classes] & 3 & 771 \\ \midrule
+\multicolumn{3}{l}{\textbf{Total Parameters}} & \textbf{26211619} \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+Multi-task architectures extend this base design by branching after the shared convolutional backbone into parallel classification heads. Rather than a single output layer predicting quality classes, multi-task models maintain the shared feature extractor (all four convolutional blocks plus the first fully connected layer) but split into two task specific pathways: one head containing a 256-unit hidden layer followed by three quality class outputs, another with identical structure but eleven fruit type outputs.
+
+Table~\ref{tab:configurable_parameters} summarises all configurable parameters employed across the scenarios, presenting default values alongside permissible ranges of alternative options. The distinction between single-task and multi-task parameters highlights architectural differences where multi-task configurations introduce additional variables (such as class counts for dual heads, loss weights for task balancing) that have no analogue in single-objective learning scenarios.
+
+\begin{table}[h]
+\centering
+\caption{Summary of configurable parameters and their values across experimental scenarios}
+\label{tab:configurable_parameters}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llcc@{}}
+\toprule
+\textbf{Parameter Category} & \textbf{Parameter} & \textbf{Default Value} & \textbf{Options/Range} \\ \midrule
+\multirow{4}{*}{Data Parameters} & IMG\_SIZE & 224 & 64, 128, 224, 299 \\
+& BATCH\_SIZE & 32 & 8, 16, 32, 64 \\
+& NUM\_WORKERS & 4 & 0-8 (CPU threads) \\
+& GRAYSCALE & False & True, False \\
+& AUGMENT & False & True, False \\ \midrule
+\multirow{2}{*}{Model Parameters} & MODEL\_NAME & simple & simple, deep, light \\
+& INPUT\_CHANNELS & 3 & 1 (grayscale), 3 (RGB) \\ \midrule
+\multirow{5}{*}{Training Parameters} & NUM\_EPOCHS & 50 & 10-200 \\
+& LEARNING\_RATE & 0.001 & 0.0001-0.01 \\
+& WEIGHT\_DECAY & 1e-4 & 0-0.01 \\
+& OPTIMIZER & adam & adam, sgd, adamw \\
+& SCHEDULER & plateau & plateau, cosine, step \\
+& PATIENCE & 10 & 5-20 epochs \\ \midrule
+\multirow{3}{*}{Advanced Training} & WARMUP\_EPOCHS & 5 & 0-10 \\
+& GRAD\_CLIP & 1.0 & 0.1-5.0, None \\
+& MIXED\_PRECISION & True & True, False \\ \midrule
+\multirow{4}{*}{Multi-Task Parameters} & NUM\_QUALITY\_CLASSES & 3 & Fixed: Good, Mild, Rotten \\
+& NUM\_FRUIT\_CLASSES & 11 & Fixed: 11 fruit types \\
+& QUALITY\_LOSS\_WEIGHT & 1.0 & 0.1-2.0 \\
+& FRUIT\_LOSS\_WEIGHT & 1.0 & 0.1-2.0 \\ \midrule
+\multirow{2}{*}{Other Parameters} & USE\_CLASS\_WEIGHTS & True & True, False \\
+& SEED & 42 & Any integer \\ \bottomrule
+\end{tabular}%
+}
+\end{table}

@@ -1,0 +1,150 @@
+\chapter{SCENARIO 1: BASELINE - NORMAL COLOURED IMAGES}
+
+\section{Introduction}
+
+Scenario 1 establishes the baseline performance for future reference in Part A of this research project using standard RGB colour images. This scenario processes unmodified three-channel colour images at $224 \times 224$ resolution, providing the foundation against which subsequent experimental modifications can be compared.
+
+\section{Configuration}
+
+Table~\ref{tab:scenario1_config} presents the complete configuration for Scenario 1. The configuration emphasises reproducibility through fixed random seeding (seed = 42). The model processes standard three-channel RGB images without augmentation or preprocessing beyond resizing and normalisation.
+
+\begin{table}[h]
+\centering
+\caption{Configuration parameters for Scenario 1 baseline}
+\label{tab:scenario1_config}
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\ \midrule
+Model Architecture & Simple CNN \\
+Input Channels & 3 (RGB) \\
+Image Size & $224 \times 224$ \\
+Batch Size & 32 \\
+Epochs & 50 \\
+Learning Rate & 0.001 \\
+Optimizer & Adam \\
+Weight Decay & 0.0001 \\
+Scheduler & ReduceLROnPlateau \\
+Patience & 10 epochs \\
+Gradient Clipping & 1.0 \\
+Warmup Epochs & 5 \\
+Mixed Precision & Enabled \\
+Class Weights & Enabled (auto-computed) \\
+Augmentation & Disabled \\
+Grayscale & Disabled \\
+Random Seed & 42 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{Results and Analysis}
+
+\subsection{Overall Performance Metrics}
+
+The baseline RGB model achieved excellent performance across all evaluation metrics, demonstrating the effectiveness of CNN-based approaches for fruit quality assessment. Table~\ref{tab:scenario1_overall} presents the comprehensive performance metrics on both validation and test sets, revealing consistent high-accuracy classification with minimal error rates.
+
+\begin{table}[h]
+\centering
+\caption{Overall quality classification performance for RGB baseline}
+\label{tab:scenario1_overall}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Metric} & \textbf{Validation} & \textbf{Test} \\ \midrule
+Accuracy & 99.84\% & 99.79\% \\
+Precision & 99.84\% & 99.79\% \\
+Recall & 99.84\% & 99.79\% \\
+F1-Score & 99.84\% & 99.79\% \\
+AUC & 1.0000 & 0.9998 \\
+Total Errors & 3 / 1,872 & 2 / 939 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+The validation set achieved 99.84\% accuracy with only 3 misclassifications among 1872 samples, while the test set achieved 99.79\% accuracy with 2 errors among 939 samples. The near-perfect AUC scores (1.0000 for validation, 0.9998 for test) indicate excellent discriminative capability across all decision thresholds. The consistency between validation and test performance (difference of 0.05 percentage points) demonstrates robust generalisation without overfitting, suggesting that the model learned genuine quality assessment patterns rather than memorising training data.
+
+The minimal error rates (0.16\% on validation, 0.21\% on test) indicate that RGB colour images provide rich discriminative information for fruit quality classification. The model successfully leverages colour features, texture patterns and shape characteristics to distinguish between Good, Mild and Rotten fruit with high reliability. These results establish a strong baseline for subsequent experimental scenarios exploring alternative input representations or training strategies.
+
+\subsection{Per Class Performance Analysis}
+
+Table~\ref{tab:scenario1_perclass} presents all three quality classes achieved performance exceeding 99.3\% across all metrics, demonstrating balanced classification capability.
+
+\begin{table}[h]
+\centering
+\caption{Per class quality classification performance for RGB baseline}
+\label{tab:scenario1_perclass}
+\begin{tabular}{@{}llccc@{}}
+\toprule
+\textbf{Class} & \textbf{Split} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\ \midrule
+\multirow{2}{*}{Good} & Validation & 100.00\% & 100.00\% & 100.00\% \\
+& Test & 100.00\% & 99.66\% & 99.83\% \\ \midrule
+\multirow{2}{*}{Mild} & Validation & 100.00\% & 99.37\% & 99.68\% \\
+& Test & 99.17\% & 100.00\% & 99.58\% \\ \midrule
+\multirow{2}{*}{Rotten} & Validation & 99.63\% & 100.00\% & 99.81\% \\
+& Test & 100.00\% & 99.75\% & 99.88\% \\ \bottomrule
+\end{tabular}
+\end{table}
+
+The ``Good'' class achieved perfect performance on the validation set (100\% across all metrics) and near-perfect performance on the test set (99.66\% recall). The ``Mild'' class showed 99.37\% recall on validation and perfect 100\% recall on test, with precision values exceeding 99\%. The ``Rotten'' class achieved perfect recall (100\%) on validation and 99.75\% on test, with precision of 99.63\% and 100\% respectively.
+
+The balanced performance across quality categories indicates that the model does not exhibit systematic bias towards any particular class. All three quality levels are classified with high reliability, suggesting that the RGB features effectively capture discriminative patterns for each quality category.
+
+\section{Confusion Matrix Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/scenario1_confusion_matrix_val.png}
+\caption{Validation Set Confusion Matrix}
+\label{fig:scenario1_confusion}
+\end{figure}
+
+The validation confusion matrix reveals three misclassifications among 1872 samples. All three errors involved ``Mild'' samples being classified as ``Rotten,'' indicating that the model encountered difficulty distinguishing between intermediate-quality fruit showing early deterioration and severely degraded fruit. Critically, the confusion matrix shows perfect discrimination at the quality extremes: no ``Good'' samples were misclassified as ``Rotten'' or vice versa, and no ``Good'' samples were confused with ``Mild.'' The ``Rotten'' class achieved perfect classification with zero errors.
+
+This error pattern suggests that classification difficulty occurs specifically at the boundary between Mild and Rotten quality categories, where visual features may be ambiguous. Fruit in transitional degradation states may exhibit characteristics of both categories, making definitive classification challenging even with full colour information.
+
+\section{ROC Curve Analysis and AUC Scores}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario1_roc_test.png}
+\caption{ROC test}
+\label{fig:scenario1_roc_test}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/scenario1_roc_val.png}
+\caption{ROC validation}
+\label{fig:scenario1_roc_val}
+\end{minipage}
+\end{figure}
+
+The ROC curves demonstrate exceptional discriminative capability for RGB-based quality classification. All three quality classes achieved perfect or near-perfect AUC scores: validation AUC = 1.0000 for all classes with micro-average AUC = 1.0000; test AUC = 1.0000 for all classes with micro-average AUC = 1.0000. These perfect AUC scores indicate that the model achieves optimal rank-ordering of predictions across all probability thresholds.
+
+The ROC curves for all classes track along the upper-left corner (point [0,1]), indicating that the model achieves maximum true positive rate while maintaining minimal false positive rate across all decision thresholds. This ideal behaviour confirms that the model's predicted probabilities are well calibrated, with clear separation between correct and incorrect class predictions. When the model assigns high confidence to a prediction, that prediction is correct with extremely high probability.
+
+\section{Training History and Convergence Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/scenario1_training_history.png}
+\caption{Training history}
+\label{fig:scenario1_training}
+\end{figure}
+
+The training history provides critical insight into the model's learning dynamics and confirms robust generalisation without overfitting. Analysis of loss curves, accuracy trajectories and learning rate adjustments reveals stable convergence with consistent validation performance.
+
+\subsection{Convergence Dynamics}
+
+The model converged rapidly within the first 10 epochs, achieving >99\% accuracy by epoch 5 and stabilising at >99.5\% by epoch 8. Both training and validation accuracy curves tracked each other closely throughout training, with validation accuracy occasionally matching or slightly exceeding training accuracy. This pattern indicates genuine learning rather than memorisation.
+
+\subsection{Loss Reduction Dynamics}
+
+The training loss decreased from approximately 0.48 to near-zero by epoch 10, while validation loss decreased from 0.16 to near-zero following a similar trajectory. The lower initial validation loss (0.16 vs. 0.48 training) likely reflects differences in batch normalisation behaviour between training and evaluation modes, rather than indicating that the validation set is easier to classify. Both loss curves show a smooth decrease without oscillations, indicating stable gradient descent dynamics and appropriate learning rate selection.
+
+\subsection{Learning Rate Schedule Impact}
+
+The learning rate schedule shows two reduction events triggered by the ReduceLROnPlateau scheduler when validation loss plateaued. The initial learning rate of 0.001 was maintained through the 5-epoch warmup phase and early convergence (epochs 1-15). The first reduction occurred around epoch 15, dropping the learning rate to approximately $5 \times 10^{-4}$. A second reduction occurred around epoch 28, further decreasing to approximately $2.5 \times 10^{-4}$.
+
+\section{Conclusion}
+
+Scenario 1 establishes a robust baseline for fruit quality assessment using standard RGB colour images, achieving 99.84\% validation accuracy and 99.79\% test accuracy. The model successfully captures discriminative visual features from colour images, including colour shifts, texture patterns and surface characteristics that indicate fruit quality.
+
+The systematic evaluation methodology applied in this baseline scenario by looking at per class metrics, confusion matrix analysis, ROC curve examination, and training history inspection, provides a comprehensive framework for assessing model performance beyond simple accuracy metrics. This multi-faceted approach reveals not only how well the model performs but also why it performs well, building confidence in the model's reliability for practical fruit quality assessment applications. Future scenarios can use this baseline as a reference point for evaluating the impact of experimental modifications on classification performance.

@@ -1,6 +1,7 @@
 /models
 /venv
 /.claude
+CLAUDE.md
 /data/processed
 /data/raw
 /reports

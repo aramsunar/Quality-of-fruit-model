@@ -1,0 +1,43 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces SimpleCNN architecture visualisation showing the sequential flow from input through four convolutional blocks with ReLU activations and max pooling, followed by fully connected layers that branch into three quality classification outputs (Fresh, Mild, Rotten)}}{9}{figure.caption.2}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Validation Set Confusion Matrix}}{15}{figure.caption.8}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces ROC test}}{16}{figure.caption.9}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces ROC validation}}{16}{figure.caption.9}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Training history}}{16}{figure.caption.10}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Validation confusion matrix}}{19}{figure.caption.12}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces ROC test}}{19}{figure.caption.13}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces ROC validation}}{19}{figure.caption.13}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Training history}}{20}{figure.caption.14}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Validation confusion matrix}}{24}{figure.caption.18}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces ROC test}}{24}{figure.caption.19}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces ROC validation}}{24}{figure.caption.19}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Training history}}{24}{figure.caption.20}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Quality Task Validation Confusion Matrix}}{31}{figure.caption.24}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Fruit Type Task Validation Confusion Matrix}}{31}{figure.caption.25}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Quality Task Test ROC Curves}}{32}{figure.caption.26}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Quality Task Validation ROC Curves}}{32}{figure.caption.26}%
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Fruit Type Task Test ROC Curves}}{32}{figure.caption.27}%
+\contentsline {figure}{\numberline {6.6}{\ignorespaces Fruit Type Task Validation ROC Curves}}{32}{figure.caption.27}%
+\contentsline {figure}{\numberline {6.7}{\ignorespaces Multi-Task Training History}}{33}{figure.caption.28}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Quality Task Validation Confusion Matrix}}{39}{figure.caption.32}%
+\contentsline {figure}{\numberline {7.2}{\ignorespaces Fruit Type Task Validation Confusion Matrix}}{39}{figure.caption.33}%
+\contentsline {figure}{\numberline {7.3}{\ignorespaces Quality Task Test ROC Curves}}{40}{figure.caption.34}%
+\contentsline {figure}{\numberline {7.4}{\ignorespaces Quality Task Validation ROC Curves}}{40}{figure.caption.34}%
+\contentsline {figure}{\numberline {7.5}{\ignorespaces Fruit Type Task Test ROC Curves}}{41}{figure.caption.35}%
+\contentsline {figure}{\numberline {7.6}{\ignorespaces Fruit Type Task Validation ROC Curves}}{41}{figure.caption.35}%
+\contentsline {figure}{\numberline {7.7}{\ignorespaces Multi-Task Grayscale Training History}}{42}{figure.caption.36}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {8.1}{\ignorespaces Quality Task Validation Confusion Matrix}}{48}{figure.caption.42}%
+\contentsline {figure}{\numberline {8.2}{\ignorespaces Fruit Type Task Validation Confusion Matrix}}{48}{figure.caption.43}%
+\contentsline {figure}{\numberline {8.3}{\ignorespaces Quality Task Test ROC Curves}}{49}{figure.caption.44}%
+\contentsline {figure}{\numberline {8.4}{\ignorespaces Quality Task Validation ROC Curves}}{49}{figure.caption.44}%
+\contentsline {figure}{\numberline {8.5}{\ignorespaces Fruit Type Task Test ROC Curves}}{49}{figure.caption.45}%
+\contentsline {figure}{\numberline {8.6}{\ignorespaces Fruit Type Task Validation ROC Curves}}{49}{figure.caption.45}%
+\contentsline {figure}{\numberline {8.7}{\ignorespaces Multi-Task Augmented Training History}}{50}{figure.caption.46}%
+\addvspace {10\p@ }

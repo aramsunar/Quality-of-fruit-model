@@ -1,0 +1,30 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Distribution of images across fruit types and quality classes in the FruQ-multi dataset}}{7}{table.caption.1}%
+\contentsline {table}{\numberline {2.2}{\ignorespaces SimpleCNN Architecture: Hierarchical feature extraction through convolutional blocks}}{10}{table.caption.3}%
+\contentsline {table}{\numberline {2.3}{\ignorespaces Summary of configurable parameters and their values across experimental scenarios}}{11}{table.caption.4}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Configuration parameters for Scenario 1 baseline}}{13}{table.caption.5}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Overall quality classification performance for RGB baseline}}{14}{table.caption.6}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Per class quality classification performance for RGB baseline}}{15}{table.caption.7}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Configuration parameters for Scenario 2}}{18}{table.caption.11}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Performance comparison between RGB (Scenario 1) and Grayscale (Scenario 2)}}{20}{table.caption.15}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces Configuration parameters for Scenario 3}}{23}{table.caption.16}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Augmentation specifications for Scenario 3}}{23}{table.caption.17}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces Configuration parameters for multi-task Scenario 1 baseline}}{28}{table.caption.21}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Overall performance metrics for multi-task Scenario 1}}{29}{table.caption.22}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces Per-class performance metrics for multi-task Scenario 1}}{30}{table.caption.23}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {7.1}{\ignorespaces Configuration parameters for multi-task Scenario 2}}{37}{table.caption.29}%
+\contentsline {table}{\numberline {7.2}{\ignorespaces Overall performance metrics for multi-task Scenario 2}}{37}{table.caption.30}%
+\contentsline {table}{\numberline {7.3}{\ignorespaces Per-class performance metrics for multi-task Scenario 2}}{38}{table.caption.31}%
+\contentsline {table}{\numberline {7.4}{\ignorespaces Performance comparison between multi-task RGB and grayscale scenarios}}{43}{table.caption.37}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {8.1}{\ignorespaces Configuration parameters for multi-task Scenario 3}}{45}{table.caption.38}%
+\contentsline {table}{\numberline {8.2}{\ignorespaces Augmentation specifications for multi-task Scenario 3}}{45}{table.caption.39}%
+\contentsline {table}{\numberline {8.3}{\ignorespaces Overall performance metrics for multi-task Scenario 3}}{46}{table.caption.40}%
+\contentsline {table}{\numberline {8.4}{\ignorespaces Per-class performance metrics for multi-task Scenario 3}}{47}{table.caption.41}%
+\addvspace {10\p@ }

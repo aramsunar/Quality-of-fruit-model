@@ -1,0 +1,106 @@
+\documentclass[12pt,a4paper]{report}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern} % Latin Modern fonts (enhanced Computer Modern)
+\usepackage{parskip} % Blank lines between paragraphs instead of indentation
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float} % For [H] figure placement
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{tocloft}
+
+% Page geometry
+\geometry{
+    a4paper,
+    left=25mm,
+    right=25mm,
+    top=25mm,
+    bottom=30mm,
+    footskip=15mm
+}
+
+% Define NWU purple colour
+\definecolor{nwupurple}{RGB}{128,0,128}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=blue,
+    citecolor=black,
+}
+
+% Part formatting - remove "Part I", "Part II" prefix
+\titleformat{\part}[display]
+{\normalfont\huge\bfseries\centering}{}{0pt}{\Huge}
+
+% Chapter and section formatting - remove "Chapter X" prefix
+\titleformat{\chapter}[display]
+{\normalfont\huge\bfseries}{}{0pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-20pt}{40pt}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+
+% Ensure plain page style also shows page numbers in footer
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+% Document information
+\title{Fruit identification and classification}
+\author{Angelina Ramsunar - 41081269 \\ Stefan Du Plooy - 40954129 \\ Rikus Swart - 42320755}
+\date{12-11-2025}
+
+\begin{document}
+
+% Title page
+\include{titlepage}
+
+% Front matter
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+\tableofcontents
+\thispagestyle{fancy}
+\newpage
+\listoftables
+\newpage
+\listoffigures
+\newpage
+
+% Main matter
+\pagenumbering{arabic}
+
+% Chapters
+\include{chapters/01_introduction}
+\include{chapters/02_cnn_methodology}
+\include{chapters/03_part_a}
+\include{chapters/04_scenario1}
+\include{chapters/05_scenario2}
+\include{chapters/06_scenario3}
+\include{chapters/07_part_b}
+\include{chapters/09_scenario11_multitask}
+\include{chapters/10_scenario12_multitask_grayscale}
+\include{chapters/11_scenario13_multitask_augmented}
+\include{chapters/08_conclusion}
+
+\end{document}

@@ -1,0 +1,78 @@
+\contentsline {chapter}{\numberline {1}INTRODUCTION}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Dataset and Model Implementation}{3}{section.1.1}%
+\contentsline {section}{\numberline {1.2}The Two Research Parts and Different Scenarios}{4}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Training and Results}{5}{section.1.3}%
+\contentsline {chapter}{\numberline {2}CONVOLUTIONAL NEURAL NETWORK}{6}{chapter.2}%
+\contentsline {part}{I\hspace {1em}PART A: SINGLE-TASK LEARNING}{12}{part.1}%
+\contentsline {chapter}{\numberline {3}SCENARIO 1: BASELINE - NORMAL COLOURED IMAGES}{13}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Introduction}{13}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Configuration}{13}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Results and Analysis}{14}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Overall Performance Metrics}{14}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Per Class Performance Analysis}{14}{subsection.3.3.2}%
+\contentsline {section}{\numberline {3.4}Confusion Matrix Analysis}{15}{section.3.4}%
+\contentsline {section}{\numberline {3.5}ROC Curve Analysis and AUC Scores}{16}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Training History and Convergence Analysis}{16}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Convergence Dynamics}{17}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Loss Reduction Dynamics}{17}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Learning Rate Schedule Impact}{17}{subsection.3.6.3}%
+\contentsline {section}{\numberline {3.7}Conclusion}{17}{section.3.7}%
+\contentsline {chapter}{\numberline {4}SCENARIO 2: GRAYSCALE IMAGES}{18}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Introduction}{18}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Configuration}{18}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Results and Analysis}{19}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Confusion Matrix Analysis}{19}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}ROC Curve Analysis}{19}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Training History}{20}{subsection.4.3.3}%
+\contentsline {section}{\numberline {4.4}Comparative Analysis with Scenario 1 (RGB Baseline)}{20}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Conclusion}{20}{section.4.5}%
+\contentsline {chapter}{\numberline {5}SCENARIO 3: AUGMENTED IMAGES}{22}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Introduction}{22}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Configuration}{22}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Results and Analysis}{22}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Confusion Matrix Analysis}{24}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}ROC Curve Analysis}{24}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Training History}{24}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}Why Augmentation Reduced Performance}{25}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Conclusion}{25}{section.5.5}%
+\newpage 
+\contentsline {part}{II\hspace {1em}PART B: MULTI-TASK LEARNING}{26}{part.2}%
+\contentsline {chapter}{\numberline {6}SCENARIO 1: MULTI-TASK BASELINE - NORMAL COLOURED IMAGES}{27}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Introduction}{27}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Configuration}{27}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Results and Analysis}{28}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Overall Performance Metrics}{28}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Per-Class Performance Analysis}{29}{subsection.6.3.2}%
+\contentsline {section}{\numberline {6.4}Confusion Matrix Analysis}{31}{section.6.4}%
+\contentsline {section}{\numberline {6.5}ROC Curve Analysis and AUC Scores}{32}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Training History and Convergence Analysis}{33}{section.6.6}%
+\contentsline {section}{\numberline {6.7}Conclusion}{34}{section.6.7}%
+\contentsline {chapter}{\numberline {7}SCENARIO 2: MULTI-TASK GRAYSCALE IMAGES}{36}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Introduction}{36}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Configuration}{36}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Results and Analysis}{37}{section.7.3}%
+\contentsline {subsection}{\numberline {7.3.1}Overall Performance Metrics}{37}{subsection.7.3.1}%
+\contentsline {subsection}{\numberline {7.3.2}Per-Class Performance Analysis}{38}{subsection.7.3.2}%
+\contentsline {section}{\numberline {7.4}Confusion Matrix Analysis}{39}{section.7.4}%
+\contentsline {section}{\numberline {7.5}ROC Curve Analysis and AUC Scores}{40}{section.7.5}%
+\contentsline {section}{\numberline {7.6}Training History and Convergence Analysis}{42}{section.7.6}%
+\contentsline {section}{\numberline {7.7}Comparative Analysis with Multi-Task Scenario 1 (RGB Baseline)}{43}{section.7.7}%
+\contentsline {section}{\numberline {7.8}Conclusion}{43}{section.7.8}%
+\contentsline {chapter}{\numberline {8}SCENARIO 3: MULTI-TASK AUGMENTED IMAGES}{44}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Introduction}{44}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Configuration}{44}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Results and Analysis}{45}{section.8.3}%
+\contentsline {subsection}{\numberline {8.3.1}Overall Performance Metrics}{45}{subsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.3.2}Per-Class Performance Analysis}{46}{subsection.8.3.2}%
+\contentsline {section}{\numberline {8.4}Confusion Matrix Analysis}{48}{section.8.4}%
+\contentsline {section}{\numberline {8.5}ROC Curve Analysis and AUC Scores}{49}{section.8.5}%
+\contentsline {section}{\numberline {8.6}Training History and Convergence Analysis}{50}{section.8.6}%
+\contentsline {section}{\numberline {8.7}Why Augmentation Degraded Quality Classification But Not Fruit Type Identification}{51}{section.8.7}%
+\contentsline {section}{\numberline {8.8}Conclusion}{51}{section.8.8}%
+\contentsline {chapter}{\numberline {9}CONCLUSION}{53}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Key Findings from Part A: Single-Task Learning}{53}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Methodological Contributions}{54}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Practical Implications}{54}{section.9.3}%
+\contentsline {section}{\numberline {9.4}Multi-Task Learning Perspective (Part B)}{54}{section.9.4}%
+\contentsline {section}{\numberline {9.5}Limitations and Future Directions}{55}{section.9.5}%
+\contentsline {section}{\numberline {9.6}Concluding Remarks}{55}{section.9.6}%
